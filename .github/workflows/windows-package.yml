@@ -33,4 +33,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: pwsh
         run: |
-          gh release create v3.0.0-arena dist/RawHostileSelect-Windows.zip --target ${{ github.sha }} --title "RawHostileSelect v3 — Evolution Arena" --notes "Windows 10/11 64-bit portable package. Extract the ZIP, then double-click Démarrer_RawHostileSelect.bat. Includes Python, Tcl/Tk and NumPy."
+          gh release create v3.0.1-summary dist/RawHostileSelect-Windows.zip --target ${{ github.sha }} --title "RawHostileSelect v3 — Simple summary" --notes "Windows 10/11 64-bit portable package with a simple explanation at the top. Extract the ZIP, then double-click Démarrer_RawHostileSelect.bat. Includes Python, Tcl/Tk and NumPy."
