@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RawHostileSelect — Evolution Arena</title>
-  <meta name="description" content="Un laboratoire local pour observer l'évolution simulée de protocoles dans un réseau hostile." />
+  <title>RawHostileSelect — L'arène des colis</title>
+  <meta name="description" content="Une arène de colis pour comprendre comment des messages traversent un réseau simulé." />
   <style>
     :root {
-      --bg: #0a0c10;
-      --surface: #12151c;
-      --border: #1e2430;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --accent: #ff4d4d;
-      --accent2: #3fb950;
-      --code-bg: #0d1117;
+      --bg: #fff8f7;
+      --surface: #ffffff;
+      --border: #eadbe4;
+      --text: #362840;
+      --muted: #594d62;
+      --accent: #a53661;
+      --accent2: #286d5c;
+      --code-bg: #f8f1f6;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: "SF Mono", "Fira Code", "Consolas", ui-monospace, monospace;
-      background: var(--bg);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(circle at 90% 0%, #ffe7ec, transparent 24rem), var(--bg);
       color: var(--text);
       line-height: 1.6;
       min-height: 100vh;
@@ -35,31 +35,31 @@
     .tagline { color: var(--muted); margin-top: 0.6rem; font-size: 0.95rem; }
     .badge {
       display: inline-block;
-      background: #21262d;
+      background: #e7f5ef;
       color: var(--accent2);
       font-size: 0.75rem;
       padding: 0.2rem 0.55rem;
-      border-radius: 4px;
+      border-radius: 999px;
       margin-top: 1rem;
-      border: 1px solid #30363d;
+      border: 1px solid #c5e5d6;
     }
     section { margin-bottom: 2.8rem; }
     h2 {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       color: var(--text);
       margin-bottom: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.01em;
       border-left: 3px solid var(--accent);
       padding-left: 0.7rem;
     }
-    p, li { color: var(--muted); font-size: 0.92rem; }
+    p, li { color: var(--muted); font-size: 1rem; }
     ul, ol { padding-left: 1.3rem; margin-top: 0.5rem; }
     li { margin-bottom: 0.35rem; }
     .quote {
       background: var(--surface);
       border: 1px solid var(--border);
       border-left: 3px solid var(--accent);
+      border-radius: 16px;
       padding: 1.1rem 1.3rem;
       margin: 1.5rem 0;
       font-style: italic;
@@ -68,13 +68,13 @@
     pre {
       background: var(--code-bg);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 14px;
       padding: 1rem 1.2rem;
       overflow-x: auto;
       font-size: 0.82rem;
       margin: 1rem 0;
     }
-    code { color: #79c0ff; }
+    code { color: #23597c; }
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -85,18 +85,19 @@
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 20px;
       padding: 1.1rem 1.2rem;
+      box-shadow: 0 8px 24px rgba(97, 53, 80, .06);
     }
-    .card h3 { font-size: 0.9rem; color: var(--accent2); margin-bottom: 0.4rem; }
-    a { color: #58a6ff; text-decoration: none; }
+    .card h3 { font-size: 1rem; color: var(--accent2); margin-bottom: 0.4rem; }
+    a { color: #85405f; text-decoration: none; }
     a:hover { text-decoration: underline; }
     .btn {
       display: inline-block;
       background: var(--accent);
       color: #fff !important;
       padding: 0.65rem 1.3rem;
-      border-radius: 6px;
+      border-radius: 999px;
       font-weight: 600;
       font-size: 0.9rem;
       margin-top: 0.8rem;
@@ -104,19 +105,20 @@
     }
     .btn:hover { filter: brightness(1.1); }
     [hidden] { display: none !important; }
-    .btn-secondary { background: var(--surface); border: 1px solid #465264; }
+    .btn-secondary { background: var(--surface); border: 1px solid #ad8398; color: var(--accent) !important; }
     .actions { display: flex; flex-wrap: wrap; gap: .75rem; }
-    .notice { margin-top: 1rem; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
-    details { margin-bottom: 2.8rem; border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; }
+    .notice { margin-top: 1rem; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; }
+    details { margin-bottom: 2.8rem; border: 1px solid var(--border); border-radius: 18px; padding: 1rem 1.2rem; }
     summary { cursor: pointer; color: var(--text); font-weight: 700; }
     details section:first-of-type { margin-top: 1.5rem; }
     details section:last-child { margin-bottom: 0; }
     .language-switch { display: flex; gap: .5rem; justify-content: flex-end; margin-bottom: 1rem; }
     .language-switch button {
       color: var(--text); background: var(--surface); border: 1px solid var(--border);
-      border-radius: 4px; padding: .4rem .8rem; font: inherit; cursor: pointer;
+      border-radius: 999px; padding: .4rem .8rem; font: inherit; cursor: pointer;
     }
     .language-switch button[aria-pressed="true"] { border-color: var(--accent); }
+    a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid #8b4569; outline-offset: 3px; }
     footer {
       margin-top: 4rem;
       padding-top: 1.5rem;
@@ -135,10 +137,10 @@
     <div id="content-fr" lang="fr">
     <header>
       <h1>RawHostileSelect</h1>
-      <p class="tagline">Observe l'évolution de protocoles de communication<br>dans une simulation de réseau hostile.</p>
-      <span class="badge">v3.0 — Evolution Arena · prototype local Windows</span>
+      <p class="tagline">Des petits colis, des messages et un chemin plein de surprises. 📦</p>
+      <span class="badge">v4.0 — L'arène des colis · application locale Windows</span>
       <div class="actions">
-        <a class="btn" href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.1-summary/RawHostileSelect-Windows.zip">Télécharger pour Windows</a>
+        <a class="btn" href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.1-summary/RawHostileSelect-Windows.zip">Télécharger la v3 pour Windows</a>
         <a class="btn" href="#demarrer">Démarrer sur Windows</a>
         <a class="btn btn-secondary" href="https://github.com/CEOMELYXJA/RawHostileSelect">Voir le code sur GitHub</a>
       </div>
@@ -155,6 +157,26 @@
       <p style="margin-top:1rem">Tout cela se passe dans une simulation sur l'ordinateur. Les colis et le chemin sont des images pour comprendre les messages et le réseau.</p>
     </section>
     <section>
+      <h2>Que voit-on dans les boîtes ?</h2>
+      <p>Une boîte contient un message. Choisis une phrase courte, une couleur, un petit code ou un mélange. Observe ce qui part et ce qui peut être lu à l'arrivée.</p>
+      <div class="grid">
+        <div class="card"><h3>💬 Une phrase</h3><p>Par exemple : « J'ai mangé une pomme. »</p></div>
+        <div class="card"><h3>🎨 Une couleur</h3><p>Un nom de couleur voyage sous forme de message.</p></div>
+        <div class="card"><h3>🔢 Un code</h3><p>Une petite suite de caractères prend place dans la boîte.</p></div>
+        <div class="card"><h3>📬 À l'arrivée</h3><p>Le contenu peut être intact, changé, illisible ou perdu. Seul le résultat du vrai essai est montré.</p></div>
+      </div>
+    </section>
+    <section>
+      <h2>Les réglages, en mots simples</h2>
+      <div class="grid">
+        <div class="card"><h3>📦 Population</h3><p>Le nombre de modèles de boîte (protocoles) essayés à chaque tour. Un modèle peut envoyer plusieurs messages.</p></div>
+        <div class="card"><h3>🌱 Générations</h3><p>Le nombre de tours. Les modèles retenus peuvent donner naissance à de nouveaux modèles au tour suivant.</p></div>
+        <div class="card"><h3>🎲 Graine</h3><p>Un numéro pour refaire les mêmes tirages au hasard. Garde le même numéro et les mêmes réglages pour refaire la même expérience.</p></div>
+        <div class="card"><h3>📊 Le graphique</h3><p>Il aide à suivre les résultats des essais au fil des tours. Un colis arrivé peut contenir un message abîmé.</p></div>
+      </div>
+      <p style="margin-top:1rem">Les petites boîtes et les descendants sont des images pour comprendre l'évolution : les boîtes ne sont pas réellement imbriquées dans le modèle.</p>
+    </section>
+    <section>
       <h2>Une arène pour explorer l'évolution</h2>
       <p>Règle ta population et ton environnement, puis suis les générations dans une application en français ou en anglais. Les personnages représentent les mécanismes du réseau; les animations montrent un échantillon de transmissions réellement enregistrées par le moteur.</p>
       <div class="grid">
@@ -167,7 +189,7 @@
     <section id="demarrer">
       <h2>Démarrer sur Windows 10 ou 11</h2>
       <p>L'arène est une application Python locale. Cette page présente le projet : elle n'exécute pas la simulation dans le navigateur.</p>
-      <p class="notice"><strong>Paquet Windows 10/11 64 bits :</strong> <a href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.1-summary/RawHostileSelect-Windows.zip">télécharge le ZIP</a>, extrais-le complètement, puis double-clique sur <strong>Démarrer_RawHostileSelect.bat</strong> dans le dossier extrait.</p>
+      <p class="notice"><strong>Paquet v3 pour Windows 10/11 64 bits :</strong> <a href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.1-summary/RawHostileSelect-Windows.zip">télécharge le ZIP</a>, extrais-le complètement, puis double-clique sur <strong>Démarrer_RawHostileSelect.bat</strong> dans le dossier extrait. Le paquet v4 sera lié ici après sa publication et sa vérification.</p>
       <h3>Installation à partir du code source</h3>
       <ol>
         <li>Sur <a href="https://github.com/CEOMELYXJA/RawHostileSelect">GitHub</a>, télécharge le code avec <strong>Code → Download ZIP</strong> et extrais le dossier.</li>
@@ -249,10 +271,10 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
     <div id="content-en" lang="en" hidden>
       <header>
         <h1>RawHostileSelect</h1>
-        <p class="tagline">Observe the evolution of communication protocols<br>in a simulated hostile network.</p>
-        <span class="badge">v3.0 — Evolution Arena · local Windows prototype</span>
+        <p class="tagline">Little packages, messages, and a path full of surprises. 📦</p>
+        <span class="badge">v4.0 — Package Arena · local Windows application</span>
         <div class="actions">
-          <a class="btn" href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.1-summary/RawHostileSelect-Windows.zip">Download for Windows</a>
+          <a class="btn" href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.1-summary/RawHostileSelect-Windows.zip">Download v3 for Windows</a>
           <a class="btn" href="#get-started">Get started on Windows</a>
           <a class="btn btn-secondary" href="https://github.com/CEOMELYXJA/RawHostileSelect">View the code on GitHub</a>
         </div>
@@ -268,6 +290,26 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
         <p style="margin-top:1rem">This all happens in a computer simulation. The package and the path are pictures that help explain messages and the network.</p>
       </section>
       <section>
+        <h2>What's inside the boxes?</h2>
+        <p>A box carries a message. Choose a short sentence, a color, a small code, or a mix. See what was sent and what can be read at the end.</p>
+        <div class="grid">
+          <div class="card"><h3>💬 A sentence</h3><p>For example: “I ate an apple today.”</p></div>
+          <div class="card"><h3>🎨 A color</h3><p>A color name travels as a message.</p></div>
+          <div class="card"><h3>🔢 A code</h3><p>A short sequence of characters goes inside the box.</p></div>
+          <div class="card"><h3>📬 At the end</h3><p>The contents can be intact, changed, unreadable, or lost. Only the actual trial result is shown.</p></div>
+        </div>
+      </section>
+      <section>
+        <h2>The settings, in simple words</h2>
+        <div class="grid">
+          <div class="card"><h3>📦 Population</h3><p>The number of box designs (protocols) tested each round. One design can send several messages.</p></div>
+          <div class="card"><h3>🌱 Generations</h3><p>The number of rounds. Selected designs can give rise to new designs in the next round.</p></div>
+          <div class="card"><h3>🎲 Seed</h3><p>A number for repeating the same random draws. Use the same number and settings to repeat the same experiment.</p></div>
+          <div class="card"><h3>📊 The graph</h3><p>It helps follow recorded trial results across rounds. A delivered box may contain a damaged message.</p></div>
+        </div>
+        <p style="margin-top:1rem">Small boxes and offspring are visual metaphors for evolution: the model does not actually nest boxes.</p>
+      </section>
+      <section>
         <h2>An arena for exploring evolution</h2>
         <p>Set your population and environment, then follow generations in a French or English application. The characters represent network mechanisms; animations show a sample of transmissions actually recorded by the engine.</p>
         <div class="grid">
@@ -280,7 +322,7 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
       <section id="get-started">
         <h2>Get started on Windows 10 or 11</h2>
         <p>The arena is a local Python application. This page introduces the project; it does not run the simulation in your browser.</p>
-        <p class="notice"><strong>Windows 10/11 64-bit package:</strong> <a href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.1-summary/RawHostileSelect-Windows.zip">download the ZIP</a>, extract it completely, then double-click <strong>Démarrer_RawHostileSelect.bat</strong> in the extracted folder.</p>
+        <p class="notice"><strong>v3 package for 64-bit Windows 10/11:</strong> <a href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.1-summary/RawHostileSelect-Windows.zip">download the ZIP</a>, extract it completely, then double-click <strong>Démarrer_RawHostileSelect.bat</strong> in the extracted folder. The v4 package will be linked here after publication and verification.</p>
         <h3>Install from source code</h3>
         <ol>
           <li>On <a href="https://github.com/CEOMELYXJA/RawHostileSelect">GitHub</a>, download the code with <strong>Code → Download ZIP</strong> and extract the folder.</li>
@@ -344,7 +386,7 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
       document.getElementById('content-fr').hidden = language !== 'fr';
       document.getElementById('content-en').hidden = language !== 'en';
       languageButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.lang === language)));
-      document.title = 'RawHostileSelect — Evolution Arena';
+      document.title = language === 'fr' ? "RawHostileSelect — L'arène des colis" : 'RawHostileSelect — Package Arena';
     }
     languageButtons.forEach(button => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
   </script>

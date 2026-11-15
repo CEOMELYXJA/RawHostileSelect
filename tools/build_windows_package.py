@@ -7,6 +7,7 @@ install anything system-wide.
 from __future__ import annotations
 
 import os
+import argparse
 from pathlib import Path
 import shutil
 import subprocess
@@ -22,25 +23,34 @@ FILES = (
 )
 
 
-def main() -> None:
+def main(destination: Path = DESTINATION) -> None:
     if os.name != "nt":
         raise SystemExit("A Windows Python installation is required.")
     source = Path(sys.base_prefix)
     deps = ROOT / ".deps"
     if not (deps / "numpy").is_dir():
         raise SystemExit("Install requirements into .deps before packaging.")
-    if DESTINATION.exists():
-        raise SystemExit(f"Refusing to overwrite {DESTINATION}")
+    if destination.exists():
+        raise SystemExit(f"Refusing to overwrite {destination}")
+    if destination.suffix.lower() != ".zip":
+        raise SystemExit("Output filename must end in .zip")
     for required in ("python.exe", "DLLs", "Lib", "tcl", "LICENSE.txt"):
         if not (source / required).exists():
             raise SystemExit(f"Missing Python runtime component: {source / required}")
 
     with tempfile.TemporaryDirectory(prefix="rawhostileselect-") as temp:
         package = Path(temp) / "RawHostileSelect"
-        runtime = package / "runtime"
+        # Keep the extracted folder simple: one visible launcher and one
+        # directory containing the program and its bundled dependencies.
+        internal = package / "Fichiers du programme"
+        runtime = internal / "runtime"
         runtime.mkdir(parents=True)
         for name in FILES:
-            shutil.copy2(ROOT / name, package / name)
+            shutil.copy2(ROOT / name, internal / name)
+        shutil.copy2(internal / "Démarrer_RawHostileSelect.bat", internal / "DEMARRER_INTERNE.bat")
+        (package / "LANCER LE PROGRAMME.bat").write_text(
+            '@echo off\ncall "%~dp0Fichiers du programme\\DEMARRER_INTERNE.bat"\n',
+            encoding="ascii", newline="\r\n")
         for item in source.iterdir():
             if item.is_file() and (item.name in ("python.exe", "pythonw.exe", "LICENSE.txt")
                                    or item.suffix.lower() == ".dll"):
@@ -48,14 +58,16 @@ def main() -> None:
         ignore = shutil.ignore_patterns("site-packages", "__pycache__", "test", "*.pyc")
         for name in ("DLLs", "Lib", "tcl"):
             shutil.copytree(source / name, runtime / name, ignore=ignore)
-        shutil.copytree(deps, package / ".deps", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-        env = dict(os.environ, PYTHONPATH=str(package / ".deps"))
+        shutil.copytree(deps, internal / ".deps", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+        env = dict(os.environ, PYTHONPATH=str(internal / ".deps"))
         subprocess.run([str(runtime / "python.exe"), "-c", "import tkinter, numpy, app"],
-                       cwd=package, env=env, check=True)
-        DESTINATION.parent.mkdir(exist_ok=True)
-        archive = shutil.make_archive(str(DESTINATION.with_suffix("")), "zip", temp, "RawHostileSelect")
+                       cwd=internal, env=env, check=True)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        archive = shutil.make_archive(str(destination.with_suffix("")), "zip", temp, "RawHostileSelect")
         print(f"Created {archive}")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=DESTINATION)
+    main(parser.parse_args().output)
