@@ -203,7 +203,7 @@ class ArenaModelTests(unittest.TestCase):
         individual = gp.Individual(gp.Node(gp.Op.IDENTITY))
         clean = gp.HostileConfig(bit_flip_prob=0, packet_drop_prob=0,
                                  adversarial_corruption_prob=0, node_failure_prob=0)
-        for language in ("fr", "en"):
+        for language in ("en",):
             for kind in ("phrase", "color", "code"):
                 with self.subTest(language=language, kind=kind):
                     engine = ArenaEngine(ArenaConfig(population=2, generations=1,
@@ -220,7 +220,7 @@ class ArenaModelTests(unittest.TestCase):
 
     def test_corrupted_or_lost_text_is_never_invented(self):
         engine = ArenaEngine(ArenaConfig(population=2, generations=1,
-                                        message_kind="phrase", message_language="fr"))
+                                        message_kind="phrase", message_language="en"))
         individual = gp.Individual(gp.Node(gp.Op.IDENTITY))
         all_bits = gp.HostileConfig(bit_flip_prob=1, packet_drop_prob=0,
                                     adversarial_corruption_prob=0, node_failure_prob=0)
@@ -236,9 +236,21 @@ class ArenaModelTests(unittest.TestCase):
         self.assertIsNone(lost["decoded_hex"])
         self.assertIsNone(lost["received_hex"])
 
+    def test_multibyte_message_round_trips(self):
+        engine = ArenaEngine(ArenaConfig(population=2, generations=1, message_kind="phrase"))
+        individual = gp.Individual(gp.Node(gp.Op.IDENTITY))
+        clean = gp.HostileConfig(bit_flip_prob=0, packet_drop_prob=0,
+                                 adversarial_corruption_prob=0, node_failure_prob=0)
+        sample = "A small snowman: \N{SNOWMAN}"
+        with patch.object(engine, "_message_payload", return_value=(sample.encode("utf-8"), "phrase", sample)):
+            event = engine._transmit(individual, "baseline", clean)
+        self.assertEqual(event["outcome"], "intact")
+        self.assertEqual(event["decoded_text"], sample)
+        self.assertEqual(event["payload_bytes"], len(sample.encode("utf-8")))
+
     def test_mixed_workload_is_reproducible_and_records_all_kinds(self):
         config = ArenaConfig(population=6, generations=2, messages=8, seed=31,
-                             message_kind="mixed", message_language="fr")
+                             message_kind="mixed", message_language="en")
         first, second = ArenaEngine(config), ArenaEngine(config)
         one, two = first.step(), second.step()
         self.assertEqual(one, two)
@@ -253,7 +265,7 @@ class ArenaModelTests(unittest.TestCase):
 
     def test_variable_length_costs_use_actual_message_bytes(self):
         engine = ArenaEngine(ArenaConfig(population=6, generations=1, messages=8, seed=11,
-                                         message_kind="mixed", message_language="fr"))
+                                         message_kind="mixed", message_language="en"))
         snapshot = engine.step()
         for individual in snapshot["individuals"]:
             base = [event for event in snapshot["events"]
@@ -278,7 +290,7 @@ class ArenaModelTests(unittest.TestCase):
 
     def test_missing_invalid_and_empty_decoding_are_distinct(self):
         engine = ArenaEngine(ArenaConfig(population=2, generations=1,
-                                        message_kind="phrase", message_language="fr"))
+                                        message_kind="phrase", message_language="en"))
         individual = gp.Individual(gp.Node(gp.Op.IDENTITY))
         conf = gp.HostileConfig(bit_flip_prob=0, packet_drop_prob=0,
                                 adversarial_corruption_prob=0, node_failure_prob=1)

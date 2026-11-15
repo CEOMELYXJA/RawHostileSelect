@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DESTINATION = ROOT / "dist" / "RawHostileSelect-Windows.zip"
 FILES = (
     "app.py", "arena_engine.py", "hostile_protocol_evolution.py",
-    "Démarrer_RawHostileSelect.bat", "README.md", "README_V3.md",
+    "START_RawHostileSelect.bat", "README.md", "README_V3.md",
     "requirements.txt", "LICENSE", "index.html", "download",
 )
 
@@ -42,14 +42,14 @@ def main(destination: Path = DESTINATION) -> None:
         package = Path(temp) / "RawHostileSelect"
         # Keep the extracted folder simple: one visible launcher and one
         # directory containing the program and its bundled dependencies.
-        internal = package / "Fichiers du programme"
+        internal = package / "Program files"
         runtime = internal / "runtime"
         runtime.mkdir(parents=True)
         for name in FILES:
             shutil.copy2(ROOT / name, internal / name)
-        shutil.copy2(internal / "Démarrer_RawHostileSelect.bat", internal / "DEMARRER_INTERNE.bat")
-        (package / "LANCER LE PROGRAMME.bat").write_text(
-            '@echo off\ncall "%~dp0Fichiers du programme\\DEMARRER_INTERNE.bat"\n',
+        shutil.copy2(internal / "START_RawHostileSelect.bat", internal / "START_INTERNAL.bat")
+        (package / "START THE APP.bat").write_text(
+            '@echo off\ncall "%~dp0Program files\\START_INTERNAL.bat"\n',
             encoding="ascii", newline="\r\n")
         for item in source.iterdir():
             if item.is_file() and (item.name in ("python.exe", "pythonw.exe", "LICENSE.txt")

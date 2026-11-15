@@ -2,14 +2,14 @@
 """
 RawHostileSelect
 ================
-Auto-évolution de protocoles par sélection naturelle
-dans un environnement extrêmement hostile.
+Self-evolving protocols through natural selection
+in an extremely hostile environment.
 
-v2 — Genetic Programming (arbres d'opérations)
-   + Sélection multi-objectifs + niches
+v2 — Genetic programming (operation trees)
+   + Multi-objective selection and niches
 
-On ne conçoit plus. On laisse évoluer.
-Ce qui survit n'a plus besoin de ressembler à TCP, fichiers ou pages.
+Let protocols evolve through simulated selection.
+Surviving structures need not resemble TCP, files, or pages.
 """
 
 from __future__ import annotations
@@ -26,14 +26,14 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 
 # ============================================================
-# 0. IDENTITÉ DU PROJET
+# 0. PROJECT IDENTITY
 # ============================================================
 
 PROJECT_NAME = "RawHostileSelect"
 VERSION = "2.0.0"
 
 # ============================================================
-# 1. ENVIRONNEMENT HOSTILE
+# 1. HOSTILE ENVIRONMENT
 # ============================================================
 
 @dataclass
@@ -74,30 +74,30 @@ class HostileEnvironment:
 
 
 # ============================================================
-# 2. GENETIC PROGRAMMING — Opérations & Arbres
+# 2. GENETIC PROGRAMMING — Operations and Trees
 # ============================================================
 
 class Op(Enum):
-    """Opérations primitives disponibles pour construire un protocole."""
+    """Primitive operations available for building a protocol."""
     IDENTITY = auto()
     SCRAMBLE = auto()
     INTERLEAVE = auto()
     ADD_PARITY = auto()
     CHECKSUM = auto()
-    REPEAT = auto()          # redondance
+    REPEAT = auto()          # redundancy
     FRAGMENT = auto()
     PAD = auto()
     XOR_CONST = auto()
     REVERSE = auto()
 
 
-# Arité et paramètres typiques
+# Arity and typical parameters
 OP_ARITY = {
     Op.IDENTITY: 0,
     Op.SCRAMBLE: 1,      # seed
     Op.INTERLEAVE: 1,    # depth
     Op.ADD_PARITY: 0,
-    Op.CHECKSUM: 1,      # strength 1 ou 2
+    Op.CHECKSUM: 1,      # strength 1 or 2
     Op.REPEAT: 1,        # n copies
     Op.FRAGMENT: 1,      # fragment size
     Op.PAD: 1,           # pad value
@@ -108,7 +108,7 @@ OP_ARITY = {
 
 @dataclass
 class Node:
-    """Nœud d'un arbre de protocole (Genetic Programming)."""
+    """Node in a genetic-programming protocol tree."""
     op: Op
     params: List[float] = field(default_factory=list)
     children: List["Node"] = field(default_factory=list)
@@ -161,17 +161,17 @@ def random_param(op: Op) -> List[float]:
 
 
 def random_node(max_depth: int = 3, current_depth: int = 0) -> Node:
-    """Génère un nœud (et éventuellement des enfants) aléatoire."""
+    """Generate a random node and optionally its children."""
     if current_depth >= max_depth or random.random() < 0.35:
-        # Feuille
+        # Leaf
         op = random.choice([Op.IDENTITY, Op.SCRAMBLE, Op.ADD_PARITY, Op.REVERSE, Op.XOR_CONST])
         return Node(op=op, params=random_param(op))
 
     op = random.choice(list(Op))
     node = Node(op=op, params=random_param(op))
 
-    # Pour la plupart des ops on empile séquentiellement (1 enfant)
-    # REPEAT et FRAGMENT restent unaires aussi dans ce modèle simplifié
+    # Most operations are stacked sequentially (one child).
+    # REPEAT and FRAGMENT are also unary in this simplified model.
     if random.random() < 0.7 and current_depth + 1 < max_depth:
         node.children = [random_node(max_depth, current_depth + 1)]
     return node
@@ -181,7 +181,7 @@ def random_tree(max_depth: int = 4) -> Node:
     return random_node(max_depth=max_depth)
 
 
-# ---------- Exécution de l'arbre (encode) ----------
+# ---------- Tree execution (encode) ----------
 
 def apply_op(op: Op, data: bytes, params: List[float]) -> bytes:
     if op == Op.IDENTITY or not data:
@@ -223,8 +223,8 @@ def apply_op(op: Op, data: bytes, params: List[float]) -> bytes:
         return data * n
 
     if op == Op.FRAGMENT:
-        # Dans ce modèle simplifié on ne fragmente pas réellement
-        # (on laisse la couche supérieure gérer). On marque juste.
+        # This simplified model does not actually fragment data;
+        # the upper layer would handle fragmentation.
         return data
 
     if op == Op.PAD:
@@ -242,24 +242,24 @@ def apply_op(op: Op, data: bytes, params: List[float]) -> bytes:
 
 
 def execute_tree(node: Node, data: bytes) -> bytes:
-    """Exécute l'arbre de bas en haut (post-ordre)."""
-    # D'abord les enfants
+    """Execute the tree bottom-up (post-order)."""
+    # Process children first.
     current = data
     for child in node.children:
         current = execute_tree(child, current)
-    # Puis l'opération du nœud
+    # Then apply the node operation.
     return apply_op(node.op, current, node.params)
 
 
-# ---------- Décodage approximatif (inverse heuristique) ----------
+# ---------- Approximate decoding (heuristic inverse) ----------
 
 def try_inverse(op: Op, data: bytes, params: List[float], original_len: int) -> bytes:
-    """Tentative d'inversion (pas toujours parfaite → sélection naturelle)."""
+    """Attempt inversion (not always perfect, allowing selection)."""
     if not data:
         return data
 
     if op == Op.SCRAMBLE:
-        # Scramble est involutif avec le même seed
+        # Scramble is self-inverse with the same seed.
         return apply_op(Op.SCRAMBLE, data, params)
 
     if op == Op.REVERSE:
@@ -288,7 +288,7 @@ def try_inverse(op: Op, data: bytes, params: List[float], original_len: int) -> 
         return data
 
     if op == Op.INTERLEAVE:
-        # Inverse approximatif
+        # Approximate inverse
         depth = max(1, int(params[0]) if params else 2)
         if depth <= 1:
             return data
@@ -311,8 +311,8 @@ def try_inverse(op: Op, data: bytes, params: List[float], original_len: int) -> 
 
 
 def decode_tree(node: Node, data: bytes, original_len: int) -> bytes:
-    """Décode en inversant l'arbre (ordre inverse)."""
-    # On inverse d'abord l'opération du nœud, puis les enfants (ordre inverse)
+    """Decode by reversing the tree operations."""
+    # Reverse the node operation first, then its children in reverse order.
     current = try_inverse(node.op, data, node.params, original_len)
     for child in reversed(node.children):
         current = decode_tree(child, current, original_len)
@@ -320,21 +320,21 @@ def decode_tree(node: Node, data: bytes, original_len: int) -> bytes:
 
 
 # ============================================================
-# 3. INDIVIDU GP + MULTI-OBJECTIF
+# 3. GP INDIVIDUAL + MULTI-OBJECTIVE
 # ============================================================
 
 @dataclass
 class FitnessVector:
-    delivery: float = 0.0      # taux de livraison
-    integrity: float = 0.0     # intégrité des données
-    efficiency: float = 0.0    # faible overhead
-    resilience: float = 0.0    # résistance aux conditions extrêmes
+    delivery: float = 0.0      # delivery rate
+    integrity: float = 0.0     # data integrity
+    efficiency: float = 0.0    # low overhead
+    resilience: float = 0.0    # resistance to extreme conditions
 
     def as_tuple(self) -> Tuple[float, float, float, float]:
         return (self.delivery, self.integrity, self.efficiency, self.resilience)
 
     def dominates(self, other: "FitnessVector") -> bool:
-        """True si self domine other (Pareto)."""
+        """Return true if this fitness dominates the other (Pareto)."""
         better_or_equal = all(a >= b for a, b in zip(self.as_tuple(), other.as_tuple()))
         strictly_better = any(a > b for a, b in zip(self.as_tuple(), other.as_tuple()))
         return better_or_equal and strictly_better
@@ -349,7 +349,7 @@ class FitnessVector:
 class Individual:
     tree: Node
     fitness: FitnessVector = field(default_factory=FitnessVector)
-    rank: int = 0                  # rang de Pareto
+    rank: int = 0                  # Pareto rank
     crowding: float = 0.0
     niche_id: int = 0
     generation: int = 0
@@ -374,7 +374,7 @@ class Individual:
                 f"size={self.complexity()}")
 
 
-# ---------- Opérateurs génétiques ----------
+# ---------- Genetic operators ----------
 
 def mutate_tree(node: Node, rate: float = 0.25) -> Node:
     node = node.copy()
@@ -383,18 +383,18 @@ def mutate_tree(node: Node, rate: float = 0.25) -> Node:
 
     r = random.random()
     if r < 0.40:
-        # Change l'opération
+        # Change the operation.
         target.op = random.choice(list(Op))
         target.params = random_param(target.op)
     elif r < 0.70:
-        # Change les paramètres
+        # Change the parameters.
         target.params = random_param(target.op)
     elif r < 0.90 and target.children:
-        # Remplace un sous-arbre
+        # Replace a subtree.
         idx = random.randint(0, len(target.children) - 1)
         target.children[idx] = random_node(max_depth=2)
     else:
-        # Ajoute ou supprime un enfant
+        # Add or remove a child.
         if target.children and random.random() < 0.5:
             target.children.pop(random.randint(0, len(target.children) - 1))
         elif len(target.children) < 2:
@@ -404,18 +404,18 @@ def mutate_tree(node: Node, rate: float = 0.25) -> Node:
 
 
 def crossover_trees(a: Node, b: Node) -> Node:
-    """Échange de sous-arbres."""
+    """Exchange subtrees."""
     child = a.copy()
     nodes_a = child.flatten()
     nodes_b = b.flatten()
     if not nodes_a or not nodes_b:
         return child
 
-    # Point d'échange dans l'enfant
+    # Choose an exchange point in the child.
     target = random.choice(nodes_a)
     donor = random.choice(nodes_b).copy()
 
-    # On remplace target par donor (simplifié : on change l'op + params + enfants)
+    # Replace the target operation, parameters, and children with the donor.
     target.op = donor.op
     target.params = list(donor.params)
     target.children = [c.copy() for c in donor.children]
@@ -423,7 +423,7 @@ def crossover_trees(a: Node, b: Node) -> Node:
 
 
 # ============================================================
-# 4. ÉVALUATION
+# 4. EVALUATION
 # ============================================================
 
 def evaluate_individual(
@@ -440,15 +440,15 @@ def evaluate_individual(
     for _ in range(n_messages):
         payload = bytes(np.random.randint(0, 256, size=payload_size, dtype=np.uint8))
 
-        # Encode via l'arbre
+        # Encode with the tree.
         try:
             encoded = execute_tree(ind.tree, payload)
         except Exception:
             encoded = payload
 
-        # On simule quelques "paquets" (redondance implicite via REPEAT dans l'arbre)
+        # Simulate packets; REPEAT in the tree provides implicit redundancy.
         packets = [encoded]
-        # Si l'arbre contient un REPEAT, encoded est déjà allongé
+        # REPEAT has already increased the encoded length, if present.
         total_sent += len(packets)
 
         received = []
@@ -463,14 +463,14 @@ def evaluate_individual(
         if not received:
             continue
 
-        # On prend le premier reçu et on tente de décoder
+        # Take the first received packet and attempt to decode it.
         try:
             decoded = decode_tree(ind.tree, received[0], payload_size)
             decoded = decoded[:payload_size]
         except Exception:
             decoded = b""
 
-        if len(decoded) >= payload_size // 2:  # au moins partiellement récupéré
+        if len(decoded) >= payload_size // 2:  # at least partially recovered
             successful += 1
             if decoded == payload:
                 integrity_ok += 1
@@ -478,12 +478,12 @@ def evaluate_individual(
     delivery = successful / max(1, n_messages)
     integrity = integrity_ok / max(1, n_messages)
 
-    # Efficacité : pénalise les arbres très gros ou très redondants
+    # Efficiency penalizes large or redundant trees.
     size_penalty = min(1.0, ind.complexity() / 18.0)
     efficiency = max(0.0, 1.0 - size_penalty * 0.6)
 
-    # Résilience approximative : on regarde si ça marche encore sous un peu plus de stress
-    # (ré-évaluation légère avec drop plus élevé)
+    # Approximate resilience is derived from delivery and integrity.
+    # This legacy score is not an independent stress test.
     resilience = delivery * 0.7 + integrity * 0.3
     if ind.complexity() > 12:
         resilience *= 0.85
@@ -497,7 +497,7 @@ def evaluate_individual(
 
 
 # ============================================================
-# 5. MULTI-OBJECTIF + NICHES (NSGA-II simplifié + speciation)
+# 5. MULTI-OBJECTIVE + NICHES (simplified NSGA-II + speciation)
 # ============================================================
 
 def fast_non_dominated_sort(population: List[Individual]) -> List[List[Individual]]:
@@ -514,7 +514,7 @@ def fast_non_dominated_sort(population: List[Individual]) -> List[List[Individua
         if dominated_count == 0:
             p.rank = 0
             fronts[0].append(p)
-        # On stocke temporairement
+        # Store temporary sorting data.
         p._dominated_count = dominated_count  # type: ignore
         p._dominated_set = dominated_set      # type: ignore
 
@@ -530,7 +530,7 @@ def fast_non_dominated_sort(population: List[Individual]) -> List[List[Individua
         i += 1
         fronts.append(next_front)
 
-    # Nettoyage
+    # Clean up temporary sorting data.
     for p in population:
         if hasattr(p, "_dominated_count"):
             del p._dominated_count
@@ -562,7 +562,7 @@ def crowding_distance(front: List[Individual]) -> None:
 
 
 def assign_niches(population: List[Individual], n_niches: int = 6) -> None:
-    """Speciation simple basée sur la taille de l'arbre + signature d'opérations."""
+    """Simple speciation based on tree size and operation signature."""
     if not population:
         return
 
@@ -575,7 +575,7 @@ def assign_niches(population: List[Individual], n_niches: int = 6) -> None:
         sig = signature(ind)
         groups.setdefault(sig, []).append(ind)
 
-    # Assigner des niche_id
+    # Assign niche IDs.
     niche_list = list(groups.values())
     for i, group in enumerate(niche_list):
         nid = i % n_niches
@@ -584,7 +584,7 @@ def assign_niches(population: List[Individual], n_niches: int = 6) -> None:
 
 
 # ============================================================
-# 6. BOUCLE ÉVOLUTIVE
+# 6. EVOLUTION LOOP
 # ============================================================
 
 def create_initial_population(size: int, max_depth: int = 4) -> List[Individual]:
@@ -613,21 +613,21 @@ def evolve(
     population = create_initial_population(pop_size)
 
     print("=" * 78)
-    print(f"  {PROJECT_NAME} v{VERSION} — Genetic Programming + Multi-Objectif + Niches")
+    print(f"  {PROJECT_NAME} v{VERSION} — Genetic Programming + Multi-Objective + Niches")
     print("=" * 78)
-    print(f"Générations : {generations} | Population : {pop_size} | Hostile : {hostile_level}")
+    print(f"Generations: {generations} | Population : {pop_size} | Hostile : {hostile_level}")
     print(f"bitflip={conf.bit_flip_prob:.3f} drop={conf.packet_drop_prob:.2f} adv={conf.adversarial_corruption_prob:.2f}")
     print("-" * 78)
 
     history = []
 
     for gen in range(generations):
-        # Évaluation
+        # Evaluation
         for ind in population:
             ind.fitness = evaluate_individual(ind, env)
             ind.generation = gen
 
-        # Tri de Pareto + crowding
+        # Pareto sorting and crowding
         fronts = fast_non_dominated_sort(population)
         for front in fronts:
             crowding_distance(front)
@@ -635,7 +635,7 @@ def evolve(
         # Niches
         assign_niches(population)
 
-        # Meilleur scalaire pour le log
+        # Best scalar score for the log
         best = max(population, key=lambda x: x.fitness.scalar())
         avg_scalar = float(np.mean([p.fitness.scalar() for p in population]))
         history.append((gen, best.fitness.scalar(), avg_scalar))
@@ -643,10 +643,10 @@ def evolve(
         print(f"Gen {gen:3d} | Best scalar: {best.fitness.scalar():.4f} | Avg: {avg_scalar:.4f} | "
               f"Front0: {len(fronts[0]) if fronts else 0} | {best.describe()}")
 
-        # Nouvelle population
+        # New population
         new_pop: List[Individual] = []
 
-        # On garde les premiers fronts (élitisme Pareto)
+        # Keep the leading fronts (Pareto elitism).
         for front in fronts:
             front_sorted = sorted(front, key=lambda x: (-x.crowding, -x.fitness.scalar()))
             for ind in front_sorted[:elite_per_front]:
@@ -657,10 +657,10 @@ def evolve(
             if len(new_pop) >= pop_size // 2:
                 break
 
-        # Remplissage par sélection + croisement + mutation
+        # Fill by selection, crossover, and mutation.
         def tournament():
             candidates = random.sample(population, k=min(4, len(population)))
-            # Préférer rang bas puis crowding élevé
+            # Prefer low rank, then high crowding.
             return min(candidates, key=lambda x: (x.rank, -x.crowding))
 
         while len(new_pop) < pop_size:
@@ -676,7 +676,7 @@ def evolve(
 
         population = new_pop
 
-    # Évaluation finale
+    # Final evaluation
     for ind in population:
         ind.fitness = evaluate_individual(ind, env, n_messages=36)
     fronts = fast_non_dominated_sort(population)
@@ -687,9 +687,9 @@ def evolve(
     population.sort(key=lambda x: (x.rank, -x.crowding, -x.fitness.scalar()))
 
     print("-" * 78)
-    print("ÉVOLUTION TERMINÉE")
-    print(f"Meilleur individu (scalaire) : {population[0].describe()}")
-    print("\nArbre du meilleur protocole :")
+    print("EVOLUTION COMPLETE")
+    print(f"Selected individual (Pareto order): {population[0].describe()}")
+    print("\nSelected protocol tree:")
     print(population[0].tree.to_string())
     print("=" * 78)
 
@@ -697,13 +697,13 @@ def evolve(
 
 
 # ============================================================
-# 7. POINT D'ENTRÉE
+# 7. ENTRY POINT
 # ============================================================
 
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description=f"{PROJECT_NAME} — GP + Multi-objectif")
+    parser = argparse.ArgumentParser(description=f"{PROJECT_NAME} — GP + Multi-objective")
     parser.add_argument("--generations", type=int, default=15)
     parser.add_argument("--pop", type=int, default=32)
     parser.add_argument("--hostile", choices=["light", "medium", "extreme"], default="medium")
@@ -717,7 +717,7 @@ if __name__ == "__main__":
         seed=args.seed,
     )
 
-    print("\n--- Front de Pareto (rank 0) — Top individus ---")
+    print("\n--- Pareto front (rank 0) — Top individuals ---")
     rank0 = [p for p in final_pop if p.rank == 0]
     for i, p in enumerate(rank0[:8]):
         print(f"{i+1}. {p.describe()}")

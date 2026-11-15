@@ -29,7 +29,7 @@ class ArenaConfig:
     # The old binary workload remains the default for existing API users.
     # The v4 interface explicitly selects one of the human-readable modes.
     message_kind: str = "random"
-    message_language: str = "fr"
+    message_language: str = "en"
 
     def __post_init__(self):
         if not 2 <= self.population <= 100 or not 1 <= self.generations <= 1000:
@@ -42,21 +42,18 @@ class ArenaConfig:
             raise ValueError("mutation_rate must be between 0 and 1")
         if self.message_kind not in ("random", "mixed", "phrase", "color", "code"):
             raise ValueError("unknown message kind")
-        if self.message_language not in ("fr", "en"):
+        if self.message_language != "en":
             raise ValueError("unknown message language")
 
 
 # These are real UTF-8 payloads, not captions added to unrelated random data.
 MESSAGE_SAMPLES = {
     "phrase": {
-        "fr": ("J'ai mangé une pomme.", "Le petit chat dort ici.", "Une étoile brille ce soir."),
         "en": ("I ate a red apple.", "The little cat sleeps here.", "A star shines tonight."),
     },
     # A color is transmitted as its exact six-digit hexadecimal value.
-    "color": {"fr": ("#FF6B8B", "#8BCFFB", "#A0D9A4"),
-              "en": ("#FF6B8B", "#8BCFFB", "#A0D9A4")},
-    "code": {"fr": ("0101-1010", "A7-B2-C9", "42-17-83"),
-             "en": ("0101-1010", "A7-B2-C9", "42-17-83")},
+    "color": {"en": ("#FF6B8B", "#8BCFFB", "#A0D9A4")},
+    "code": {"en": ("0101-1010", "A7-B2-C9", "42-17-83")},
 }
 
 
