@@ -103,6 +103,12 @@
       text-decoration: none !important;
     }
     .btn:hover { filter: brightness(1.1); }
+    .language-switch { display: flex; gap: .5rem; justify-content: flex-end; margin-bottom: 1rem; }
+    .language-switch button {
+      color: var(--text); background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: .4rem .8rem; font: inherit; cursor: pointer;
+    }
+    .language-switch button[aria-pressed="true"] { border-color: var(--accent); }
     footer {
       margin-top: 4rem;
       padding-top: 1.5rem;
@@ -114,6 +120,11 @@
 </head>
 <body>
   <div class="container">
+    <nav class="language-switch" aria-label="Langue / Language">
+      <button type="button" data-lang="fr" aria-pressed="true">Français</button>
+      <button type="button" data-lang="en" aria-pressed="false">English</button>
+    </nav>
+    <div id="content-fr" lang="fr">
     <header>
       <h1>RawHostileSelect</h1>
       <p class="tagline">Auto-évolution de protocoles par sélection naturelle<br>dans un environnement extrêmement hostile</p>
@@ -181,10 +192,79 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
       </ul>
     </section>
 
+    <section>
+      <h2>Application locale Evolution Arena</h2>
+      <p>Une application Python pour Windows accompagne le projet. Consulte le fichier <a href="https://github.com/CEOMELYXJA/RawHostileSelect/blob/main/README_V3.md">README_V3.md</a> pour les instructions et les limites de la version disponible. Cette page Web est informative : elle n’exécute pas le moteur Python.</p>
+    </section>
     <footer>
       RawHostileSelect — MIT License<br>
       <a href="https://github.com/CEOMELYXJA/RawHostileSelect">github.com/CEOMELYXJA/RawHostileSelect</a>
     </footer>
+    </div>
+    <div id="content-en" lang="en" hidden>
+      <header>
+        <h1>RawHostileSelect</h1>
+        <p class="tagline">Self-evolving protocols through natural selection<br>in an extremely hostile environment</p>
+        <span class="badge">v2.0 — Genetic Programming + Multi-objective + Niches</span>
+      </header>
+      <section>
+        <div class="quote">We no longer design. We let things evolve.<br>What survives no longer needs to resemble TCP, files, or pages.</div>
+        <p>Populations of protocols (represented as <strong>operation trees</strong>) compete under bit noise, packet loss, variable latency, failures and adversarial attacks. Natural selection decides. The goal is to discover radically different abstractions.</p>
+      </section>
+      <section>
+        <h2>What v2 does</h2>
+        <div class="grid">
+          <div class="card"><h3>Genetic Programming</h3><p>Protocols are trees: SCRAMBLE, INTERLEAVE, REPEAT, CHECKSUM, REVERSE, XOR… Mutation changes parts of a tree; crossover exchanges subtrees.</p></div>
+          <div class="card"><h3>Multi-objective + Niches</h3><p>Vector fitness (delivery, integrity, efficiency, resilience). Pareto sorting, crowding and speciation.</p></div>
+        </div>
+      </section>
+      <section>
+        <h2>Run the evolution</h2>
+        <p>The engine is a Python script. Download the code, then run:</p>
+        <pre><code>pip install numpy
+
+# Standard evolution
+python hostile_protocol_evolution.py --generations 20 --pop 36 --hostile medium
+
+# Extreme environment
+python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme</code></pre>
+        <p style="margin-top:1rem"><a class="btn" href="https://github.com/CEOMELYXJA/RawHostileSelect">View / clone the GitHub repository</a></p>
+      </section>
+      <section>
+        <h2>Example of an emerging tree</h2>
+        <pre><code>REPEAT(2.0)
+  SCRAMBLE(3142.0)
+    ADD_PARITY()
+      REVERSE()</code></pre>
+        <p>The exact structure changes from one run to another. That's the point.</p>
+      </section>
+      <section>
+        <h2>Roadmap</h2>
+        <ul>
+          <li>✔ Genetic Programming (operation trees)</li>
+          <li>✔ Multi-objective selection + niches</li>
+          <li>□ Non-classical memory architectures</li>
+          <li>□ Adversary co-evolution</li>
+          <li>□ Agents without an explicit concept of a “message”</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Local Evolution Arena application</h2>
+        <p>A Windows Python application accompanies the project. See <a href="https://github.com/CEOMELYXJA/RawHostileSelect/blob/main/README_V3.md">README_V3.md</a> for instructions and the limitations of the available version. This web page is informational: it does not run the Python engine.</p>
+      </section>
+      <footer>RawHostileSelect — MIT License<br><a href="https://github.com/CEOMELYXJA/RawHostileSelect">github.com/CEOMELYXJA/RawHostileSelect</a></footer>
+    </div>
   </div>
+  <script>
+    const languageButtons = document.querySelectorAll('[data-lang]');
+    function setLanguage(language) {
+      document.documentElement.lang = language;
+      document.getElementById('content-fr').hidden = language !== 'fr';
+      document.getElementById('content-en').hidden = language !== 'en';
+      languageButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.lang === language)));
+      document.title = language === 'fr' ? 'RawHostileSelect — Auto-évolution de protocoles' : 'RawHostileSelect — Self-evolving protocols';
+    }
+    languageButtons.forEach(button => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
+  </script>
 </body>
 </html>
