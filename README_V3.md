@@ -6,7 +6,7 @@ Evolution Arena est l'interface locale en cours de développement pour explorer 
 
 ### Installation sous Windows 10 ou 11
 
-Si vous disposez du **paquet local autonome** fourni avec les dossiers `runtime` et `.deps`, gardez tous ses fichiers ensemble et double-cliquez sur `Démarrer_RawHostileSelect.bat`. Ce paquet comprend Python, Tkinter et NumPy; aucune installation séparée n'est nécessaire sur un Windows compatible.
+Pour Windows 10 ou 11 **64 bits**, [téléchargez le paquet autonome](https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.0-arena/RawHostileSelect-Windows.zip), extrayez complètement le ZIP, puis double-cliquez sur `Démarrer_RawHostileSelect.bat` dans le dossier extrait. Gardez tous ses fichiers ensemble. Ce paquet comprend Python, Tkinter et NumPy; aucune installation séparée n'est nécessaire sur un Windows compatible.
 
 Pour une copie du **code source téléchargée depuis GitHub**, le runtime et les dépendances locales ne sont pas inclus :
 
@@ -55,7 +55,7 @@ Evolution Arena is the local interface under development for exploring RawHostil
 
 ### Installation on Windows 10 or 11
 
-If you have the **self-contained local package** with its `runtime` and `.deps` folders, keep all its files together and double-click `Démarrer_RawHostileSelect.bat`. This package includes Python, Tkinter and NumPy; no separate installation is needed on a compatible Windows computer.
+For **64-bit** Windows 10 or 11, [download the self-contained package](https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.0-arena/RawHostileSelect-Windows.zip), extract the ZIP completely, then double-click `Démarrer_RawHostileSelect.bat` in the extracted folder. Keep all its files together. This package includes Python, Tkinter and NumPy; no separate installation is needed on a compatible Windows computer.
 
 For a **source-code copy downloaded from GitHub**, the runtime and local dependencies are not included:
 
