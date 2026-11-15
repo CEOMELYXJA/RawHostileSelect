@@ -13,25 +13,7 @@ from tkinter import filedialog, messagebox, ttk
 from arena_engine import ArenaConfig, ArenaEngine
 
 
-TEXT = {
-    "fr": {
-        "title": "RawHostileSelect — Evolution Arena", "subtitle": "Laboratoire évolutif · événements réels du moteur",
-        "settings": "Réglages", "population": "Population", "generations": "Générations", "difficulty": "Difficulté", "seed": "Graine (seed)", "speed": "Vitesse",
-        "slow": "Démonstration lente", "fast": "Exécution rapide", "start": "DÉMARRER", "pause": "PAUSE", "resume": "REPRENDRE", "next": "GÉNÉRATION SUIVANTE", "reset": "RECOMMENCER",
-        "ready": "Prêt. Configure l'expérience puis démarre.", "working": "Calcul en cours…", "paused": "En pause entre deux générations.", "complete": "Expérience terminée.",
-        "arena": "Arène des transmissions", "metaphor": "Furie : perturbations · Bolide : message · Planète : réseau hostile (métaphores)",
-        "legend": "Vert : intact   Rouge : altéré   Gris : perdu   Orange : échec", "sample": "Animation : échantillon d'événements enregistrés, pas toutes les transmissions.",
-        "progress": "Progression", "metrics": "Résultats de la génération", "best": "Meilleur score", "average": "Moyenne", "delivery": "Livraison", "integrity": "Intégrité", "efficiency": "Efficacité", "resilience": "Résilience", "front": "Front de Pareto", "diversity": "Diversité", "generation": "Génération", "individuals": "Protocoles — sélectionne pour inspecter", "inspect": "Inspecter", "narrative": "Journal de l'expérience", "export": "Exporter JSON", "csv": "Exporter CSV", "replay": "Ouvrir un replay", "replaymode": "Replay enregistré", "live": "Simulation locale", "no_data": "Aucune génération enregistrée.",
-        "not_evaluated": "Pas encore évalué", "saved": "Fichier enregistré.", "error": "Erreur", "invalid": "Vérifie les paramètres : population de 2 à 100, générations de 1 à 1 000 et seed entière.", "no_history": "Lance au moins une génération avant l'export.", "open_error": "Impossible d'ouvrir ce replay.", "light": "Légère", "medium": "Moyenne", "extreme": "Extrême", "scalar": "Score pondéré", "original_hex": "Original (hex)", "encoded_hex": "Encodé (hex)", "received_hex": "Reçu (hex)", "decoded_hex": "Décodé (hex)",
-        "gen_log": "Génération {g} : meilleur {best:.3f}, moyenne {avg:.3f}, front de Pareto {front}, diversité {div:.3f}.",
-        "delta": "Variation du meilleur score : {delta:+.3f}. Les résultats peuvent fluctuer.", "events": "Événements enregistrés : {trans} transmissions, {mut} mutations, {cross} croisements, {sel} sélections, {elim} éliminations.",
-        "transmission": "Protocole {id} · {scenario} : {outcome} · bits inversés {bits} · latence {latency}",
-        "intact": "reconstruit intact", "corrupted": "contenu altéré", "lost": "paquet perdu", "failure": "panne", "encoding_error": "erreur d'encodage", "baseline": "épreuve normale", "stress": "épreuve extrême", "unavailable": "non mesuré",
-        "inspect_title": "Fiche du protocole", "structure": "Structure génétique", "parents": "Parents enregistrés", "rank": "Rang de Pareto", "niche": "Niche", "stats": "Mesures enregistrées", "pipeline": "Original → Encodage → Réseau hostile → Décodage → Comparaison",
-        "no_event": "Aucune transmission enregistrée pour ce protocole.", "measure_help": "Livraison : proportion de paquets reçus. Intégrité : proportion reconstruite exactement. Résilience : intégrité mesurée à l'épreuve extrême. Efficacité : score calculé selon le coût des octets et la latence. Score pondéré : 40 % livraison, 30 % intégrité, 15 % efficacité, 15 % résilience. Ces résultats ne démontrent pas une performance réelle.",
-        "current": "Événement affiché", "id": "Protocole", "status": "Résultat", "limit": "Les temps d'animation sont adaptés à l'écran ; la latence numérique provient du moteur.", "report": "Bilan", "summary_end": "Les résultats décrivent uniquement les essais simulés. Une livraison ne garantit pas l'intégrité. Le front de Pareto regroupe les compromis non dominés, pas nécessairement le meilleur score pondéré.",
-    },
-    "en": {
+TEXT = {"en": {
         "title": "RawHostileSelect — Evolution Arena", "subtitle": "Evolution lab · actual engine events",
         "settings": "Settings", "population": "Population", "generations": "Generations", "difficulty": "Difficulty", "seed": "Seed", "speed": "Speed",
         "slow": "Slow demonstration", "fast": "Fast run", "start": "START", "pause": "PAUSE", "resume": "RESUME", "next": "NEXT GENERATION", "reset": "RESTART",
@@ -47,39 +29,8 @@ TEXT = {
         "inspect_title": "Protocol details", "structure": "Genetic structure", "parents": "Recorded parents", "rank": "Pareto rank", "niche": "Niche", "stats": "Recorded measurements", "pipeline": "Original → Encoding → Hostile network → Decoding → Comparison",
         "no_event": "No transmission recorded for this protocol.", "measure_help": "Delivery: proportion of packets received. Integrity: proportion reconstructed exactly. Resilience: integrity measured in the extreme trial. Efficiency: score calculated from byte cost and latency. Weighted score: 40% delivery, 30% integrity, 15% efficiency, 15% resilience. These results do not demonstrate real-world performance.",
         "current": "Displayed event", "id": "Protocol", "status": "Result", "limit": "Animation timing is adapted for display; the numerical latency comes from the engine.", "report": "Report", "summary_end": "Results describe simulated trials only. Delivery does not guarantee integrity. The Pareto front contains non-dominated trade-offs, not necessarily the highest weighted score.",
-    },
-}
+    }}
 
-TEXT['fr'].update({
-    'simple_title': 'En bref — une simulation',
-    'simple_explain': 'On fait semblant d’envoyer des colis : les colis sont des messages. Ils peuvent se perdre, arriver abîmés ou arriver intacts.',
-    'simple_wait': 'Appuie sur DÉMARRER pour voir ce qui arrive aux colis.',
-    'simple_result': 'Pour l’idée {id} : sur {attempts} essais, {received} colis sont arrivés ({delivery:.0%}). Parmi eux, {intact} messages étaient intacts ({integrity:.0%} des essais) et {damaged} encore abîmés. {lost} colis se sont perdus ; {other} autres essais ont échoué.',
-    'simple_best': 'C’est la meilleure idée selon le score calculé. C’est une simulation, pas une preuve dans la vraie vie.',
-    'simple_missing': 'Ce replay ne contient pas tous les comptes nécessaires pour ce résumé.',
-    'dashboard': 'Tableau de bord', 'tree_tab': 'Arbre interactif', 'details_tab': 'Résultats', 'family_tab': 'Filiation',
-    'click_node': 'Clique sur une opération. Les enfants sont exécutés avant leur parent.',
-    'no_trace': "Cet enregistrement ne contient pas le détail de cette opération ; aucun exemple n'est inventé.",
-    'before': 'Avant', 'after': 'Après', 'encoding': 'Encodage', 'decoding': 'Décodage', 'truncated': 'Extrait limité aux premiers octets',
-    'no_tree': "Arbre détaillé non enregistré dans ce replay.", 'family_intro': 'Parents et historique enregistrés dans cette expérience :',
-    'no_parents': 'Aucun parent enregistré (population initiale ou données absentes).', 'no_family_history': 'Aucun historique supplémentaire disponible.',
-    'event_mutation': 'Mutation enregistrée · enfant {id} · parents {parents}',
-    'event_crossover': 'Croisement enregistré · enfant {id} · parents {parents}',
-    'event_selection': 'Sélection enregistrée · {id}', 'event_elimination': 'Élimination enregistrée · {id}',
-    'unchanged': 'Le croisement a produit le même arbre que le premier parent.',
-    'niches': 'Répartition par niche', 'complexity': 'Complexité des arbres (nombre de nœuds)', 'latency_mean': 'Latence moyenne mesurée',
-    'pareto_note': 'Points : chaque protocole ; horizontal = livraison, vertical = intégrité. Vert = front 0.',
-    'population_stats': 'Population évaluée', 'lost_count': 'Pertes', 'failure_count': 'Pannes', 'byte_count': 'Octets envoyés',
-    'trial_note': 'Les coûts et les pertes ci-dessous concernent les essais de référence ; la résilience correspond aux essais extrêmes distincts.',
-    'history_generation': 'Génération {g} : score {score:.3f}, rang {rank}, structure :\n{tree}',
-    'bit_changes': 'Bits modifiés enregistrés', 'no_bits': 'Aucun détail de bit disponible pour cet essai.',
-    'observation': 'Observation réelle (essai enregistré)', 'generation_change': 'Évolution depuis la génération précédente',
-    'tree_size': 'Complexité', 'attack': 'Corruption adversariale', 'checksum_failed': 'Contrôle détecté en échec',
-    'yes': 'oui', 'no': 'non', 'sample': "Animation : échantillon de transmissions et d'événements évolutifs enregistrés.",
-    'report_progress': "Bilan jusqu'ici : {first} → {last} ; meilleur score {start:.3f} → {end:.3f} ({delta:+.3f}).",
-    'report_result': "Dans la dernière population, {id} a le meilleur score pondéré : livraison {delivery:.1%}, intégrité {integrity:.1%}, résilience {resilience:.1%}. Sur les essais de référence : {lost} pertes, {failures} pannes, {bytes} octets envoyés.",
-    'report_failure': "Une intégrité de 0 % signifie qu'aucun essai de ce protocole n'a reconstruit le message exactement ; elle ne signifie pas nécessairement qu'aucun paquet n'est arrivé.",
-})
 TEXT['en'].update({
     'simple_title': 'In a nutshell — a simulation',
     'simple_explain': 'We pretend to send packages: the packages are messages. They can get lost, arrive damaged or arrive intact.',
@@ -113,35 +64,6 @@ TEXT['en'].update({
 
 # Version 4 keeps the scientific model but introduces a concrete delivery
 # analogy. A design is a protocol candidate; an individual trial is a box.
-TEXT['fr'].update({
-    'title': 'RawHostileSelect 4 · Le voyage des colis',
-    'subtitle': 'Une petite aventure pour voir comment les messages voyagent',
-    'population': 'Modèles de boîtes', 'generations': 'Tours', 'generation': 'Tour',
-    'seed': 'Numéro magique', 'arena': 'Le voyage des boîtes',
-    'metaphor': 'Départ → Furie et le chemin perturbé → arrivée',
-    'progress': 'Que deviennent les boîtes ?',
-    'legend': 'Vert : intact   Rose : abîmé   Gris : perdu   Orange : panne ou échec',
-    'sample': 'On anime quelques essais enregistrés. Chaque boîte est un message testé.',
-    'seed_help': 'Numéro magique = graine : avec le même numéro et les mêmes réglages, les mêmes tirages se répètent.',
-    'population_help': 'Modèles : façons de protéger les boîtes. Un tour teste chaque modèle ; les suivants héritent de modèles sélectionnés.',
-    'message_type': 'Message dans les boîtes', 'mixed': 'Un mélange', 'phrase': 'Une phrase', 'color': 'Une couleur', 'code': 'Un petit code', 'mode_note': '(type et langue choisis au démarrage)',
-    'start_box': 'AU DÉPART', 'arrival_box': 'À L’ARRIVÉE', 'waiting_box': 'En attente du prochain colis…',
-    'not_arrived': 'La boîte n’est pas arrivée.', 'not_decoded': 'Le contenu ne peut pas être lu en texte.', 'invalid_color': 'Code couleur non valide.',
-    'waiting_arrival': 'La boîte est encore en chemin…', 'original_unknown': 'Contenu non enregistré.',
-    'outcome_intact': 'Message intact', 'outcome_corrupted': 'Message modifié', 'outcome_lost': 'Boîte perdue',
-    'outcome_failure': 'Panne avant le départ', 'outcome_encoding_error': 'Préparation impossible',
-    'departure': 'DÉPART', 'weather': 'FURIE / RÉSEAU', 'destination': 'ARRIVÉE',
-    'next_box': 'VOIR UN AUTRE COLIS', 'excerpt': 'Extrait : les données complètes sont dans les détails.',
-    'trial_graph': 'Part des essais normaux à chaque tour :', 'intact_short': 'Intacts', 'damaged_short': 'Abîmés',
-    'lost_short': 'Perdus', 'other_short': 'Pannes / erreurs', 'gen_axis': 'Tours',
-    'box_totals': 'Ce tour : {sent} envoyés sur {attempts} essais · {intact} intacts · {damaged} abîmés · {lost} perdus · {other} pannes/erreurs',
-    'graph_help': 'Pourcentages calculés sur les essais normaux de tous les modèles, pas sur les essais extrêmes.',
-    'scroll_hint': 'Défile vers le bas pour voir le graphique.',
-    'nested_note': 'Petite boîte = nouvelle idée issue des parents enregistrés (image).',
-    'bit_note': '{count} bits modifiés', 'attack_note': 'Corruption enregistrée',
-    'limit': 'La vitesse dessinée est illustrative ; les événements et les messages viennent de la simulation.',
-    'simple_explain': 'Un modèle est une façon de protéger une boîte. On met un vrai petit message dans chaque boîte et on regarde ce qui arrive.',
-})
 TEXT['en'].update({
     'title': 'RawHostileSelect 4 · The package journey',
     'subtitle': 'A little adventure to see how messages travel',
@@ -172,18 +94,6 @@ TEXT['en'].update({
     'simple_explain': 'A design is a way to protect a box. We put a real little message in each box and see what happens.',
 })
 
-TEXT['fr'].update({
-    'messages_history': 'HISTORIQUE DES COLIS',
-    'history_title': 'Historique des colis — du départ à l’arrivée',
-    'history_empty': 'Il n’y a pas encore de colis à montrer. Lance un test, puis reviens ici.',
-    'history_intro': 'Choisis un tour, puis un colis. Les essais extrêmes ont un chemin plus difficile. L’historique reste après le test tant que le programme est ouvert ; RECOMMENCER le vide.',
-    'history_refresh': 'ACTUALISER', 'history_round': 'Tour à regarder',
-    'history_count': '{count} colis enregistrés dans ce tour.',
-    'history_kind': 'Contenu', 'history_trial': 'Essai',
-    'history_departure': 'Départ :', 'history_arrival': 'Arrivée :',
-    'history_choose': 'Choisis un colis dans la liste pour lire son message.',
-    'history_binary': 'Données binaires', 'history_empty_message': '(message vide)',
-})
 TEXT['en'].update({
     'messages_history': 'PACKAGE HISTORY',
     'history_title': 'Package history — from departure to arrival',
@@ -198,16 +108,16 @@ TEXT['en'].update({
 })
 
 OP_INFO = {
-    'IDENTITY': ('Conserve les octets tels quels.', 'Leaves the bytes unchanged.'),
-    'SCRAMBLE': ('Applique un XOR avec un masque pseudo-aléatoire déterminé par la graine.', 'Applies XOR with a seed-derived pseudorandom mask.'),
-    'INTERLEAVE': ('Réordonne les octets en colonnes et peut ajouter des zéros.', 'Reorders bytes in columns and may add zero padding.'),
-    'ADD_PARITY': ('Ajoute la somme des octets modulo 256 ; elle est vérifiée au décodage.', 'Appends the byte sum modulo 256; it is checked during decoding.'),
-    'CHECKSUM': ('Ajoute une somme modulo 256 ou quatre octets de BLAKE2b selon le paramètre ; vérifiée au décodage.', 'Appends a modulo-256 sum or four BLAKE2b bytes depending on the parameter; checked during decoding.'),
-    'REPEAT': ('Répète les octets ; le décodage vote bit par bit entre les copies.', 'Repeats the bytes; decoding votes bit by bit among the copies.'),
-    'FRAGMENT': ("Marqueur sans effet sur les octets dans ce modèle ; aucune fragmentation réelle.", 'Marker with no effect on bytes in this model; no actual fragmentation.'),
-    'PAD': ('Ajoute un octet de remplissage.', 'Appends one padding byte.'),
-    'XOR_CONST': ('Applique un XOR à chaque octet avec une constante.', 'XORs each byte with a constant.'),
-    'REVERSE': ("Inverse l'ordre des octets.", 'Reverses byte order.'),
+    'IDENTITY': ('Leaves the bytes unchanged.', 'Leaves the bytes unchanged.'),
+    'SCRAMBLE': ('Applies XOR with a seed-derived pseudorandom mask.', 'Applies XOR with a seed-derived pseudorandom mask.'),
+    'INTERLEAVE': ('Reorders bytes in columns and may add zero padding.', 'Reorders bytes in columns and may add zero padding.'),
+    'ADD_PARITY': ('Appends the byte sum modulo 256; it is checked during decoding.', 'Appends the byte sum modulo 256; it is checked during decoding.'),
+    'CHECKSUM': ('Appends a modulo-256 sum or four BLAKE2b bytes depending on the parameter; checked during decoding.', 'Appends a modulo-256 sum or four BLAKE2b bytes depending on the parameter; checked during decoding.'),
+    'REPEAT': ('Repeats the bytes; decoding votes bit by bit among the copies.', 'Repeats the bytes; decoding votes bit by bit among the copies.'),
+    'FRAGMENT': ('Marker with no effect on bytes in this model; no actual fragmentation.', 'Marker with no effect on bytes in this model; no actual fragmentation.'),
+    'PAD': ('Appends one padding byte.', 'Appends one padding byte.'),
+    'XOR_CONST': ('XORs each byte with a constant.', 'XORs each byte with a constant.'),
+    'REVERSE': ('Reverses byte order.', 'Reverses byte order.'),
 }
 
 # Soft pastel surfaces use dark ink for readable text. Parcel colors remain
@@ -227,7 +137,7 @@ class ArenaApp(tk.Tk):
         width, height = max(320, min(1380, screen_w - 60)), max(300, min(900, screen_h - 100))
         self.geometry(f"{width}x{height}")
         self.minsize(min(900, width), min(650, height))
-        self.lang = tk.StringVar(value="fr")
+        self.lang = tk.StringVar(value="en")
         self.population = tk.StringVar(value="12")
         self.generations = tk.StringVar(value="20")
         self.difficulty = tk.StringVar(value="medium")
@@ -300,8 +210,6 @@ class ArenaApp(tk.Tk):
         self.option_add('*TCombobox*Listbox.foreground', INK)
         header = ttk.Frame(self, padding=(15, 10)); header.pack(fill="x")
         ttk.Label(header, text=self.t("title"), style="Title.TLabel").pack(side="left")
-        ttk.Combobox(header, textvariable=self.lang, values=("fr", "en"), state="readonly", width=4).pack(side="right")
-        header.winfo_children()[-1].bind("<<ComboboxSelected>>", lambda _e: self._rebuild())
         ttk.Label(self, text=self.t("subtitle")).pack(anchor="w", padx=18)
         # Canvas-backed card gives the main summary actual rounded corners,
         # while the inner frame keeps its text accessible and selectable.
@@ -960,7 +868,7 @@ class ArenaApp(tk.Tk):
                 for child in node['children']:
                     canvas.create_line(node['x'], node['y']+17, child['x'], child['y']-17, fill='#907d9b', width=2, arrow='first')
             def show_node(node):
-                data = node['data']; op = str(data.get('op', '?')); info = OP_INFO.get(op, ('', ''))[0 if self.lang.get() == 'fr' else 1]
+                data = node['data']; op = str(data.get('op', '?')); info = OP_INFO.get(op, ('', ''))[1]
                 lines = [f"{op} {data.get('params', [])}", info, '']
                 event = transmissions[selected.get()] if transmissions and selected.get() < len(transmissions) else {}
                 found = False

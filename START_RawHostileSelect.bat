@@ -30,30 +30,26 @@ if not defined RHS_PYTHON (
     if not errorlevel 1 set "RHS_PYTHON=python"
 )
 if not defined RHS_PYTHON (
-    echo Python 3 est introuvable. Installez Python 3 depuis python.org.
     echo Python 3 was not found. Install Python 3 from python.org.
-    echo Consultez README_V3.md / See README_V3.md.
+    echo See README_V3.md.
     pause
     exit /b 1
 )
 if not exist "app.py" (
-    echo app.py est introuvable dans ce dossier.
     echo app.py was not found in this folder.
     pause
     exit /b 1
 )
 %RHS_PYTHON% -c "import tkinter" >nul 2>&1
 if errorlevel 1 (
-    echo Tkinter est introuvable dans cette installation de Python.
     echo Tkinter was not found in this Python installation.
-    echo Reinstallez Python avec Tcl/Tk. / Reinstall Python with Tcl/Tk.
+    echo Reinstall Python with Tcl/Tk.
     pause
     exit /b 1
 )
 %RHS_PYTHON% -c "import numpy" >nul 2>&1
 if errorlevel 1 (
-    echo NumPy est necessaire / NumPy is required.
-    echo Ouvrez un terminal dans ce dossier et executez :
+    echo NumPy is required.
     echo Open a terminal in this folder and run:
     echo %RHS_PYTHON% -m pip install -r requirements.txt --target .deps
     pause
@@ -61,7 +57,7 @@ if errorlevel 1 (
 )
 %RHS_PYTHON% app.py
 if errorlevel 1 (
-    echo L'application s'est arretee avec une erreur. / The application stopped with an error.
+    echo The application stopped with an error.
     pause
     exit /b 1
 )
