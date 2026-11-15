@@ -172,6 +172,31 @@ TEXT['en'].update({
     'simple_explain': 'A design is a way to protect a box. We put a real little message in each box and see what happens.',
 })
 
+TEXT['fr'].update({
+    'messages_history': 'HISTORIQUE DES COLIS',
+    'history_title': 'Historique des colis — du départ à l’arrivée',
+    'history_empty': 'Il n’y a pas encore de colis à montrer. Lance un test, puis reviens ici.',
+    'history_intro': 'Choisis un tour, puis un colis. Les essais extrêmes ont un chemin plus difficile. L’historique reste après le test tant que le programme est ouvert ; RECOMMENCER le vide.',
+    'history_refresh': 'ACTUALISER', 'history_round': 'Tour à regarder',
+    'history_count': '{count} colis enregistrés dans ce tour.',
+    'history_kind': 'Contenu', 'history_trial': 'Essai',
+    'history_departure': 'Départ :', 'history_arrival': 'Arrivée :',
+    'history_choose': 'Choisis un colis dans la liste pour lire son message.',
+    'history_binary': 'Données binaires', 'history_empty_message': '(message vide)',
+})
+TEXT['en'].update({
+    'messages_history': 'PACKAGE HISTORY',
+    'history_title': 'Package history — from departure to arrival',
+    'history_empty': 'There are no packages to show yet. Start a test, then come back here.',
+    'history_intro': 'Choose a round, then a package. Extreme trials use a harder path. History stays after the test while the app is open; RESTART clears it.',
+    'history_refresh': 'REFRESH', 'history_round': 'Round to view',
+    'history_count': '{count} packages recorded in this round.',
+    'history_kind': 'Contents', 'history_trial': 'Trial',
+    'history_departure': 'Departure:', 'history_arrival': 'Arrival:',
+    'history_choose': 'Choose a package in the list to read its message.',
+    'history_binary': 'Binary data', 'history_empty_message': '(empty message)',
+})
+
 OP_INFO = {
     'IDENTITY': ('Conserve les octets tels quels.', 'Leaves the bytes unchanged.'),
     'SCRAMBLE': ('Applique un XOR avec un masque pseudo-aléatoire déterminé par la graine.', 'Applies XOR with a seed-derived pseudorandom mask.'),
@@ -327,7 +352,7 @@ class ArenaApp(tk.Tk):
             button = ttk.Button(controls, text=self.t(label), command=cmd); button.pack(side="left", padx=2, pady=2)
             if label == 'pause': self.pause_button = button
         file_controls = ttk.Frame(self, padding=(14, 0)); file_controls.pack(fill="x")
-        for label, cmd in (("export", self.export_json), ("csv", self.export_csv), ("replay", self.open_replay)):
+        for label, cmd in (("messages_history", self.open_messages_history), ("export", self.export_json), ("csv", self.export_csv), ("replay", self.open_replay)):
             ttk.Button(file_controls, text=self.t(label), command=cmd).pack(side="left", padx=2, pady=2)
         self._update_pause_button()
         ttk.Label(self, textvariable=self.status).pack(anchor="w", padx=18, pady=3)
@@ -508,6 +533,9 @@ class ArenaApp(tk.Tk):
 
     def show_snapshot(self, snap, animate=True):
         self.update_simple_summary()
+        history_window = getattr(self, '_messages_history_window', None)
+        if history_window is not None and history_window.winfo_exists():
+            history_window.update_history_rounds()
         self.box_events = [e for e in snap.get('events', []) if e.get('type') == 'transmission' and e.get('scenario') == 'baseline']
         self.box_index = -1
         summary = snap.get("summary", {})
@@ -702,6 +730,153 @@ class ArenaApp(tk.Tk):
         self.animation_token += 1
         self.box_index = (self.box_index + 1) % len(self.box_events)
         self.draw_arena(self.box_events[self.box_index], 1.0)
+
+    def history_message(self, event, field):
+        """Read the recorded bytes without inventing or shortening a message."""
+        key = 'original_hex' if field == 'original' else 'decoded_hex'
+        raw = event.get(key)
+        if raw is None:
+            return self.t('original_unknown') if field == 'original' else self.t('not_arrived')
+        try:
+            data = bytes.fromhex(raw)
+        except (TypeError, ValueError):
+            return self.t('original_unknown')
+        if not data:
+            return self.t('history_empty_message')
+        try:
+            return self.escape_message(data.decode('utf-8', errors='strict'))
+        except UnicodeDecodeError:
+            return self.t('not_decoded') + '\nHEX: ' + data.hex(' ')
+
+    def open_messages_history(self):
+        """Show recorded trials one round at a time, including after completion."""
+        if not self.history:
+            messagebox.showinfo(self.t('messages_history'), self.t('history_empty'))
+            return
+        existing = getattr(self, '_messages_history_window', None)
+        if existing is not None and existing.winfo_exists():
+            existing.lift()
+            existing.focus_force()
+            return
+
+        win = tk.Toplevel(self, bg=PAPER)
+        self._messages_history_window = win
+        win.title(self.t('history_title'))
+        win.geometry('1100x690')
+        win.minsize(700, 450)
+        outer = ttk.Frame(win, padding=12)
+        outer.pack(fill='both', expand=True)
+        ttk.Label(outer, text=self.t('history_title'), style='Title.TLabel').pack(anchor='w')
+        ttk.Label(outer, text=self.t('history_intro'), wraplength=1000).pack(anchor='w', pady=(4, 10))
+        choose = ttk.Frame(outer)
+        choose.pack(fill='x', pady=(0, 8))
+        ttk.Label(choose, text=self.t('history_round')).pack(side='left', padx=(0, 8))
+        rounds = ttk.Combobox(choose, state='readonly', width=18)
+        rounds.pack(side='left')
+        count = tk.StringVar(value='')
+        ttk.Label(choose, textvariable=count).pack(side='left', padx=12)
+
+        table_frame = ttk.Frame(outer)
+        table_frame.pack(fill='both', expand=True)
+        columns = ('trial', 'kind', 'departure', 'arrival', 'status')
+        style = ttk.Style(win)
+        style.configure('History.Treeview', background=PLOT_BG, fieldbackground=PLOT_BG,
+                        foreground=INK, rowheight=26)
+        style.configure('History.Treeview.Heading', background='#eeddee', foreground=INK)
+        style.map('History.Treeview', background=[('selected', '#dfc6e5')],
+                  foreground=[('selected', INK)])
+        table = ttk.Treeview(table_frame, columns=columns, show='headings', selectmode='browse',
+                             height=10, style='History.Treeview')
+        for key, title, width in (
+            ('trial', self.t('history_trial'), 125),
+            ('kind', self.t('history_kind'), 115),
+            ('departure', self.t('start_box'), 250),
+            ('arrival', self.t('arrival_box'), 250),
+            ('status', self.t('status'), 150),
+        ):
+            table.heading(key, text=title)
+            table.column(key, width=width, minwidth=90, stretch=True)
+        vertical = ttk.Scrollbar(table_frame, orient='vertical', command=table.yview)
+        horizontal = ttk.Scrollbar(table_frame, orient='horizontal', command=table.xview)
+        table.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
+        vertical.pack(side='right', fill='y')
+        horizontal.pack(side='bottom', fill='x')
+        table.pack(side='left', fill='both', expand=True)
+
+        detail_frame = ttk.Frame(outer)
+        detail_frame.pack(fill='x', pady=(10, 0))
+        details = tk.Text(detail_frame, height=7, wrap='word', bg=SOFT_CARD, fg=INK,
+                          relief='flat', font=('Segoe UI', 10), padx=10, pady=8)
+        detail_scroll = ttk.Scrollbar(detail_frame, orient='vertical', command=details.yview)
+        details.configure(yscrollcommand=detail_scroll.set)
+        detail_scroll.pack(side='right', fill='y')
+        details.pack(side='left', fill='both', expand=True)
+        self.put_text(details, self.t('history_choose'))
+        state = {'snapshots': [], 'events': []}
+
+        def show_details(_event=None):
+            selection = table.selection()
+            if not selection:
+                self.put_text(details, self.t('history_choose'))
+                return
+            event = state['events'][int(selection[0])]
+            outcome = event.get('outcome')
+            result = self.t('outcome_' + outcome) if outcome in ('intact', 'corrupted', 'lost', 'failure', 'encoding_error') else self.t('unavailable')
+            text = (self.t('history_departure') + '\n' + self.history_message(event, 'original') +
+                    '\n\n' + self.t('history_arrival') + '\n' + self.history_message(event, 'decoded') +
+                    '\n\n' + self.t('status') + ' : ' + result)
+            self.put_text(details, text)
+
+        def show_round(_event=None):
+            for item in table.get_children():
+                table.delete(item)
+            index = rounds.current()
+            if index < 0 or index >= len(state['snapshots']):
+                state['events'] = []
+                count.set(self.t('history_count').format(count=0))
+                self.put_text(details, self.t('history_choose'))
+                return
+            snapshot = state['snapshots'][index]
+            state['events'] = [e for e in snapshot.get('events', []) if e.get('type') == 'transmission']
+            for i, event in enumerate(state['events']):
+                scenario = event.get('scenario')
+                trial = self.t(scenario) if scenario in ('baseline', 'stress') else self.t('unavailable')
+                kind = event.get('message_kind')
+                contents = self.t(kind) if kind in ('phrase', 'color', 'code') else self.t('history_binary')
+                outcome = event.get('outcome')
+                result = self.t('outcome_' + outcome) if outcome in ('intact', 'corrupted', 'lost', 'failure', 'encoding_error') else self.t('unavailable')
+                before = self.message_preview(event, 'original').replace('\n', ' · ')[:70]
+                after = self.message_preview(event, 'decoded').replace('\n', ' · ')[:70]
+                table.insert('', 'end', iid=str(i), values=(trial, contents, before, after, result))
+            count.set(self.t('history_count').format(count=len(state['events'])))
+            if state['events']:
+                table.selection_set('0')
+                show_details()
+            else:
+                self.put_text(details, self.t('history_choose'))
+
+        def refresh():
+            selected = rounds.current()
+            state['snapshots'] = list(self.history)
+            rounds.configure(values=[f"{self.t('generation')} {s.get('generation', i)}" for i, s in enumerate(state['snapshots'])])
+            if state['snapshots']:
+                rounds.current(selected if 0 <= selected < len(state['snapshots']) else len(state['snapshots']) - 1)
+            show_round()
+
+        def update_rounds():
+            # Add new rounds without disturbing the message being examined.
+            current_history = list(self.history)
+            if len(current_history) != len(state['snapshots']):
+                state['snapshots'] = current_history
+                rounds.configure(values=[f"{self.t('generation')} {s.get('generation', i)}" for i, s in enumerate(current_history)])
+
+        ttk.Button(choose, text=self.t('history_refresh'), command=refresh).pack(side='right')
+        rounds.bind('<<ComboboxSelected>>', show_round)
+        table.bind('<<TreeviewSelect>>', show_details)
+        # Retain widget references for accessibility and automated verification.
+        win.history_rounds, win.history_table, win.history_details = rounds, table, details
+        win.refresh_history, win.update_history_rounds = refresh, update_rounds
+        refresh()
 
     def draw_evolution(self, event, fraction):
         self.displayed_event = None
