@@ -1,12 +1,19 @@
-# RawHostileSelect — Evolution Arena
+# RawHostileSelect — L'arène des colis / Package Arena
 
 ## Français
 
-Evolution Arena est l'interface locale en cours de développement pour explorer le moteur Python de RawHostileSelect. La page GitHub Pages présente le projet : elle n'exécute pas Python dans le navigateur. Le script `hostile_protocol_evolution.py` et sa commande existante restent disponibles.
+La v4 représente les messages par de petites boîtes qui traversent un réseau simulé. On peut essayer une phrase, une couleur, un code ou un mélange; voir ce qui est envoyé et ce qui est réellement reconstruit; et suivre les résultats au fil des tours.
+
+- **Population** : nombre de modèles de boîte (protocoles) essayés par tour. Chaque modèle peut envoyer plusieurs messages.
+- **Générations** : nombre de tours. Les modèles retenus peuvent donner naissance à d'autres modèles au tour suivant. Les boîtes imbriquées sont une métaphore visuelle, pas une structure physique simulée.
+- **Graine** : numéro qui permet de refaire les mêmes tirages aléatoires avec les mêmes réglages et la même version du programme.
+- **À l'arrivée** : une boîte peut arriver intacte, arriver avec un message modifié ou illisible, ou se perdre. Des octets corrompus peuvent ne plus former du texte UTF-8 valide : ils ne sont pas transformés en phrase inventée.
+
+L'arène est une application locale pour explorer le moteur Python de RawHostileSelect. La page GitHub Pages présente le projet : elle n'exécute pas Python dans le navigateur. Le script `hostile_protocol_evolution.py` et sa commande existante restent disponibles.
 
 ### Installation sous Windows 10 ou 11
 
-Pour Windows 10 ou 11 **64 bits**, [téléchargez le paquet autonome](https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.1-summary/RawHostileSelect-Windows.zip), extrayez complètement le ZIP, puis double-cliquez sur `Démarrer_RawHostileSelect.bat` dans le dossier extrait. Gardez tous ses fichiers ensemble. Ce paquet comprend Python, Tkinter et NumPy; aucune installation séparée n'est nécessaire sur un Windows compatible.
+Pour utiliser le paquet autonome v4 sur Windows 10 ou 11 **64 bits**, extrayez complètement le ZIP, ouvrez le dossier `RawHostileSelect`, puis double-cliquez sur `LANCER LE PROGRAMME.bat`. Gardez tous ses fichiers ensemble. Ce paquet comprend Python, Tkinter et NumPy; aucune installation séparée n'est nécessaire sur un Windows compatible. Le [site du projet](https://ceomelyxja.github.io/RawHostileSelect/) indique le téléchargement disponible.
 
 Pour une copie du **code source téléchargée depuis GitHub**, le runtime et les dépendances locales ne sont pas inclus :
 
@@ -36,14 +43,14 @@ L'application permet d'exécuter l'évolution par générations, de voir un éch
 
 La fiche d'un protocole comprend un arbre cliquable, des explications en français ou en anglais, les parents et l'historique enregistrés. Choisis un essai puis clique sur une opération pour voir les traces d'octets avant et après, lorsque disponibles. Ces extraits se limitent à 64 octets et sont clairement identifiés comme tels. Les anciens replays sans trace affichent leur absence plutôt qu'un exemple inventé. Le tableau de bord présente notamment le front de Pareto, les niches, la complexité, la latence, les pertes et les octets envoyés.
 
-Les résultats décrivent le modèle informatique et ses hypothèses, pas des tests d'un réseau physique. Chaque protocole est évalué sur un petit nombre de messages; les valeurs peuvent donc beaucoup varier. Les mesures de la v3 utilisent d'autres définitions que celles de la v2 : **leurs scores ne sont pas directement comparables**.
+Les résultats décrivent le modèle informatique et ses hypothèses, pas des tests d'un réseau physique. Chaque protocole est évalué sur un petit nombre de messages; les valeurs peuvent donc beaucoup varier. Les mesures de la v3/v4 utilisent d'autres définitions que celles de la v2 : **leurs scores ne sont pas directement comparables**. En v4, changer le type ou la longueur des messages change aussi l'expérience; comparez des essais avec les mêmes réglages.
 
-Dans la v3 :
+Dans la v4 :
 
 - **Livraison** : paquets reçus divisés par le nombre de tentatives.
 - **Intégrité** : messages reconstruits exactement divisés par le nombre de tentatives.
 - **Résilience** : proportion de messages reconstruits exactement lors d'essais extrêmes séparés.
-- **Efficacité** : octets utiles reconstruits divisés par les octets envoyés, multipliés par `1 / (1 + latence moyenne des paquets reçus / 40)`. C'est un score calculé du modèle, pas un débit réel; il vaut zéro lorsqu'il n'y a aucun octet envoyé ou aucune latence mesurée.
+- **Efficacité** : somme des octets d'origine des messages reconstruits exactement, divisée par les octets réellement envoyés, puis multipliée par `1 / (1 + latence moyenne des paquets reçus / 40)`. C'est un score calculé du modèle, pas un débit réel; il vaut zéro lorsqu'il n'y a aucun octet envoyé ou aucune latence mesurée.
 
 La latence est exprimée en unités simulées. Dans ce modèle, l'opération `FRAGMENT` est neutre; une somme de contrôle peut manquer certaines erreurs. Une livraison ne garantit pas une reconstruction exacte.
 
@@ -51,11 +58,18 @@ Cette première version n'inclut pas encore toutes les fonctions souhaitées. Le
 
 ## English
 
-Evolution Arena is the local interface under development for exploring RawHostileSelect's Python engine. The GitHub Pages website describes the project; it does not execute Python in the browser. The `hostile_protocol_evolution.py` script and its existing command remain available.
+Version 4 represents messages as little boxes travelling through a simulated network. Try a sentence, color, code, or a mix; see what was sent and what was actually reconstructed; and follow results across rounds.
+
+- **Population**: number of box designs (protocols) tested in each round. Each design may send several messages.
+- **Generations**: number of rounds. Selected designs can give rise to other designs in the next round. Nested boxes are a visual metaphor, not a physical structure simulated by the model.
+- **Seed**: a number that repeats the same random draws with the same settings and program version.
+- **At the end**: a box can arrive intact, arrive with a changed or unreadable message, or get lost. Corrupted bytes may no longer form valid UTF-8 text; no replacement sentence is invented.
+
+The arena is a local interface for exploring RawHostileSelect's Python engine. The GitHub Pages website describes the project; it does not execute Python in the browser. The `hostile_protocol_evolution.py` script and its existing command remain available.
 
 ### Installation on Windows 10 or 11
 
-For **64-bit** Windows 10 or 11, [download the self-contained package](https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v3.0.1-summary/RawHostileSelect-Windows.zip), extract the ZIP completely, then double-click `Démarrer_RawHostileSelect.bat` in the extracted folder. Keep all its files together. This package includes Python, Tkinter and NumPy; no separate installation is needed on a compatible Windows computer.
+To use the self-contained v4 package on **64-bit** Windows 10 or 11, extract the ZIP completely, open the `RawHostileSelect` folder, then double-click `LANCER LE PROGRAMME.bat`. Keep all its files together. This package includes Python, Tkinter and NumPy; no separate installation is needed on a compatible Windows computer. The [project website](https://ceomelyxja.github.io/RawHostileSelect/) shows the available download.
 
 For a **source-code copy downloaded from GitHub**, the runtime and local dependencies are not included:
 
@@ -85,14 +99,14 @@ The application can run evolution one generation at a time, display a sample of 
 
 A protocol's details include a clickable tree, explanations in French or English, and recorded parents and history. Choose a trial and click an operation to see before-and-after byte traces when available. These excerpts are limited to 64 bytes and clearly identified as such. Older replays without traces show that the information is unavailable instead of inventing an example. The dashboard includes the Pareto front, niches, complexity, latency, losses, and bytes sent.
 
-Results describe the computer model and its assumptions, not tests of a physical network. Each protocol is evaluated on a small number of messages, so values can vary considerably. Version 3 uses different definitions from version 2: **their scores are not directly comparable**.
+Results describe the computer model and its assumptions, not tests of a physical network. Each protocol is evaluated on a small number of messages, so values can vary considerably. Versions 3 and 4 use different definitions from version 2: **their scores are not directly comparable**. In v4, changing message type or length also changes the experiment; compare trials with the same settings.
 
-In v3:
+In v4:
 
 - **Delivery**: packets received divided by attempts.
 - **Integrity**: messages reconstructed exactly divided by attempts.
 - **Resilience**: fraction of messages reconstructed exactly in separate extreme trials.
-- **Efficiency**: reconstructed useful bytes divided by sent bytes, multiplied by `1 / (1 + average latency of received packets / 40)`. This is a calculated model score, not actual throughput; it is zero when no bytes were sent or no latency was measured.
+- **Efficiency**: sum of the original bytes of exactly reconstructed messages, divided by bytes actually sent, multiplied by `1 / (1 + average latency of received packets / 40)`. This is a calculated model score, not actual throughput; it is zero when no bytes were sent or no latency was measured.
 
 Latency is expressed in simulated units. In this model, `FRAGMENT` is a neutral operation; a checksum can miss some errors. Delivery does not guarantee exact reconstruction.
 

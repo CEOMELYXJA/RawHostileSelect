@@ -26,6 +26,10 @@ class ArenaConfig:
     messages: int = 8
     payload_size: int = 16
     mutation_rate: float = 0.30
+    # The old binary workload remains the default for existing API users.
+    # The v4 interface explicitly selects one of the human-readable modes.
+    message_kind: str = "random"
+    message_language: str = "fr"
 
     def __post_init__(self):
         if not 2 <= self.population <= 100 or not 1 <= self.generations <= 1000:
@@ -36,6 +40,24 @@ class ArenaConfig:
             raise ValueError("messages must be 1–100 and payload_size 1–256")
         if not 0 <= self.mutation_rate <= 1:
             raise ValueError("mutation_rate must be between 0 and 1")
+        if self.message_kind not in ("random", "mixed", "phrase", "color", "code"):
+            raise ValueError("unknown message kind")
+        if self.message_language not in ("fr", "en"):
+            raise ValueError("unknown message language")
+
+
+# These are real UTF-8 payloads, not captions added to unrelated random data.
+MESSAGE_SAMPLES = {
+    "phrase": {
+        "fr": ("J'ai mangé une pomme.", "Le petit chat dort ici.", "Une étoile brille ce soir."),
+        "en": ("I ate a red apple.", "The little cat sleeps here.", "A star shines tonight."),
+    },
+    # A color is transmitted as its exact six-digit hexadecimal value.
+    "color": {"fr": ("#FF6B8B", "#8BCFFB", "#A0D9A4"),
+              "en": ("#FF6B8B", "#8BCFFB", "#A0D9A4")},
+    "code": {"fr": ("0101-1010", "A7-B2-C9", "42-17-83"),
+             "en": ("0101-1010", "A7-B2-C9", "42-17-83")},
+}
 
 
 def _config(level):
@@ -51,6 +73,31 @@ def _config(level):
 def tree_data(node):
     return {"op": node.op.name, "params": list(node.params),
             "children": [tree_data(child) for child in node.children]}
+
+
+def crowding_distance(front):
+    """Assign NSGA-II distances without inventing boundaries for a tie.
+
+    An objective that has the same value throughout the front provides no
+    information about diversity and must not make arbitrary candidates into
+    infinite-distance boundary points. This v4 implementation leaves the
+    original v2 CLI untouched.
+    """
+    for individual in front:
+        individual.crowding = 0.0
+    for objective in ("delivery", "integrity", "efficiency", "resilience"):
+        if not front:
+            break
+        ordered = sorted(front, key=lambda item: getattr(item.fitness, objective))
+        low = getattr(ordered[0].fitness, objective)
+        high = getattr(ordered[-1].fitness, objective)
+        if high - low < 1e-9:
+            continue
+        ordered[0].crowding = ordered[-1].crowding = float("inf")
+        for i in range(1, len(ordered) - 1):
+            previous = getattr(ordered[i - 1].fitness, objective)
+            following = getattr(ordered[i + 1].fitness, objective)
+            ordered[i].crowding += (following - previous) / (high - low)
 
 
 def _stage(node, path, before, after, checksum_failed=None):
@@ -177,12 +224,30 @@ class ArenaEngine:
         self._next_id += 1
         return value
 
+    def _message_payload(self):
+        """Return the actual bytes, kind and text selected for one trial.
+
+        The binary mode consumes exactly the same RNG calls as the v3 model.
+        Text samples use strict UTF-8; no padding or hidden substitution occurs.
+        """
+        kind = self.config.message_kind
+        if kind == "random":
+            payload = self.rng.integers(0, 256, self.config.payload_size, dtype=np.uint8).tobytes()
+            return payload, kind, None
+        if kind == "mixed":
+            kind = ("phrase", "color", "code")[int(self.rng.integers(0, 3))]
+        samples = MESSAGE_SAMPLES[kind][self.config.message_language]
+        text = samples[int(self.rng.integers(0, len(samples)))]
+        return text.encode("utf-8"), kind, text
+
     def _transmit(self, individual, scenario, conf):
         rng = self.rng
-        payload = rng.integers(0, 256, self.config.payload_size, dtype=np.uint8).tobytes()
+        payload, message_kind, original_text = self._message_payload()
         event = {"type": "transmission", "individual_id": individual.id,
                  "scenario": scenario, "outcome": "lost", "bit_flips": 0,
                  "latency": None, "adversarial": False, "checksum_failed": False,
+                 "message_kind": message_kind, "original_text": original_text,
+                 "decoded_text": None, "payload_bytes": len(payload),
                  "original_hex": payload.hex(), "encoded_hex": "", "received_hex": None,
                  "decoded_hex": None, "sent_bytes": 0, "encode_steps": [],
                  "decode_steps": [], "bit_changes": [], "changed_bit_count": 0,
@@ -228,6 +293,12 @@ class ArenaEngine:
         decoded, failed = _decode(received, steps, event["decode_steps"])
         event["received_hex"] = received.hex()
         event["decoded_hex"] = decoded.hex()
+        if original_text is not None:
+            try:
+                event["decoded_text"] = decoded.decode("utf-8", errors="strict")
+            except UnicodeDecodeError:
+                # Keep the actual bytes in decoded_hex; never manufacture text.
+                pass
         event["checksum_failed"] = failed
         event["outcome"] = "intact" if decoded == payload else "corrupted"
         return event
@@ -245,7 +316,8 @@ class ArenaEngine:
         # Useful-byte fraction penalizes transmission overhead; latency factor is
         # explicitly scaled by the model's max latency. Unreceived messages
         # contribute no useful bytes; it is a score, not a network throughput.
-        useful_fraction = intact * self.config.payload_size / sent if sent else 0.0
+        useful_bytes = sum(e["payload_bytes"] for e in baseline if e["outcome"] == "intact")
+        useful_fraction = useful_bytes / sent if sent else 0.0
         latency_factor = 1 / (1 + (latency / 40)) if latency is not None else 0.0
         delivery = len(received) / count
         integrity = intact / count
@@ -283,7 +355,7 @@ class ArenaEngine:
             events.extend(observations)
         fronts = gp.fast_non_dominated_sort(self.population)
         for front in fronts:
-            gp.crowding_distance(front)
+            crowding_distance(front)
         gp.assign_niches(self.population)
         individuals = []
         for ind in self.population:
@@ -313,7 +385,7 @@ class ArenaEngine:
             "failures": sum(event["outcome"] == "failure" for event in baseline),
             "encoding_errors": sum(event["outcome"] == "encoding_error" for event in baseline),
             "sent_bytes": total_bytes,
-            "bytes_per_payload_byte": total_bytes / (len(sent) * self.config.payload_size) if sent else None,
+            "bytes_per_payload_byte": (total_bytes / sum(event["payload_bytes"] for event in sent)) if sent else None,
             "mean_latency": sum(event["latency"] for event in received) / len(received) if received else None,
             "checksum_failures": sum(event["checksum_failed"] for event in baseline),
             "bit_flips": sum(event["bit_flips"] for event in baseline),
@@ -383,5 +455,5 @@ class ArenaEngine:
         return snapshot
 
     def export(self):
-        return {"version": "3.0", "config": asdict(self.config),
+        return {"version": "4.0", "config": asdict(self.config),
                 "lineage": self.lineage, "generations": self.history}
