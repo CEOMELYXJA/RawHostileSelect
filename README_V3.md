@@ -39,6 +39,8 @@ La commande originale en mode texte demeure `py -3 hostile_protocol_evolution.py
 
 ### À propos des résultats
 
+Le bouton **HISTORIQUE DES COLIS** ouvre une liste des messages par tour : choisis un colis pour revoir son contenu au départ et à l'arrivée. L'historique reste disponible après la fin du test tant que le programme est ouvert, et **RECOMMENCER** le vide. Pour le conserver après la fermeture, utilise l'export JSON et ouvre ce fichier en replay.
+
 L'application permet d'exécuter l'évolution par générations, de voir un échantillon de transmissions, sélections, éliminations, mutations et croisements enregistrés, d'exporter les résultats en JSON ou CSV et de rouvrir un replay JSON. La simulation tourne en arrière-plan. L'arène emploie des métaphores visuelles : elle ne simule pas des personnages physiques. Les animations ne montrent qu'un échantillon des événements enregistrés.
 
 La fiche d'un protocole comprend un arbre cliquable, des explications en français ou en anglais, les parents et l'historique enregistrés. Choisis un essai puis clique sur une opération pour voir les traces d'octets avant et après, lorsque disponibles. Ces extraits se limitent à 64 octets et sont clairement identifiés comme tels. Les anciens replays sans trace affichent leur absence plutôt qu'un exemple inventé. Le tableau de bord présente notamment le front de Pareto, les niches, la complexité, la latence, les pertes et les octets envoyés.
@@ -94,6 +96,8 @@ py -3 app.py
 The original text-mode command remains `py -3 hostile_protocol_evolution.py --generations 20 --pop 36 --hostile medium` (after setting `PYTHONPATH` as above if necessary).
 
 ### About the results
+
+The **PACKAGE HISTORY** button opens a list of messages by round: choose a package to review its contents at departure and arrival. History remains available after the test while the app is open, and **RESTART** clears it. To keep it after closing the app, export JSON and reopen that file as a replay.
 
 The application can run evolution one generation at a time, display a sample of recorded transmissions, selections, eliminations, mutations and crossovers, export results as JSON or CSV, and reopen a JSON replay. The simulation runs in the background. The arena uses visual metaphors: it does not simulate physical characters. The animation shows only a sample of recorded events.
 

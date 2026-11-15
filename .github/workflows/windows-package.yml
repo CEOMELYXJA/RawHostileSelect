@@ -33,4 +33,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: pwsh
         run: |
-          gh release create v4.0.0 dist/RawHostileSelect-Windows.zip --target ${{ github.sha }} --title "RawHostileSelect v4 — L'arène des colis" --notes "Windows 10/11 64-bit portable package. Extract the ZIP, open RawHostileSelect and double-click LANCER LE PROGRAMME.bat. Includes Python, Tcl/Tk and NumPy."
+          gh release create v4.0.1 dist/RawHostileSelect-Windows.zip --target ${{ github.sha }} --title "RawHostileSelect v4 — Historique des colis" --notes "Windows 10/11 64-bit portable package with message history. Extract the ZIP, open RawHostileSelect and double-click LANCER LE PROGRAMME.bat. Includes Python, Tcl/Tk and NumPy."
