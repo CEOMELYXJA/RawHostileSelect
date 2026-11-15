@@ -8,7 +8,7 @@ Visit the [project website](https://ceomelyxja.github.io/RawHostileSelect/) or r
 
 ## Run the Windows app
 
-1. Download the [standalone Windows package](https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v4.0.2/RawHostileSelect-Windows.zip).
+1. Download the [standalone Windows package](https://github.com/CEOMELYXJA/RawHostileSelect/releases/latest/download/RawHostileSelect-Windows.zip).
 2. Extract the ZIP completely and open the `RawHostileSelect` folder.
 3. Double-click `START THE APP.bat`.
 
