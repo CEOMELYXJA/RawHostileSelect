@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RawHostileSelect — Auto-évolution de protocoles</title>
-  <meta name="description" content="Sélection naturelle de protocoles dans un environnement extrêmement hostile. Genetic Programming + multi-objectif." />
+  <title>RawHostileSelect — Evolution Arena</title>
+  <meta name="description" content="Un laboratoire local pour observer l'évolution simulée de protocoles dans un réseau hostile." />
   <style>
     :root {
       --bg: #0a0c10;
@@ -54,7 +54,7 @@
       padding-left: 0.7rem;
     }
     p, li { color: var(--muted); font-size: 0.92rem; }
-    ul { padding-left: 1.3rem; margin-top: 0.5rem; }
+    ul, ol { padding-left: 1.3rem; margin-top: 0.5rem; }
     li { margin-bottom: 0.35rem; }
     .quote {
       background: var(--surface);
@@ -103,6 +103,14 @@
       text-decoration: none !important;
     }
     .btn:hover { filter: brightness(1.1); }
+    [hidden] { display: none !important; }
+    .btn-secondary { background: var(--surface); border: 1px solid #465264; }
+    .actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+    .notice { margin-top: 1rem; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+    details { margin-bottom: 2.8rem; border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; }
+    summary { cursor: pointer; color: var(--text); font-weight: 700; }
+    details section:first-of-type { margin-top: 1.5rem; }
+    details section:last-child { margin-bottom: 0; }
     .language-switch { display: flex; gap: .5rem; justify-content: flex-end; margin-bottom: 1rem; }
     .language-switch button {
       color: var(--text); background: var(--surface); border: 1px solid var(--border);
@@ -127,10 +135,37 @@
     <div id="content-fr" lang="fr">
     <header>
       <h1>RawHostileSelect</h1>
-      <p class="tagline">Auto-évolution de protocoles par sélection naturelle<br>dans un environnement extrêmement hostile</p>
-      <span class="badge">v2.0 — Genetic Programming + Multi-objectif + Niches</span>
+      <p class="tagline">Observe l'évolution de protocoles de communication<br>dans une simulation de réseau hostile.</p>
+      <span class="badge">v3.0 — Evolution Arena · prototype local Windows</span>
+      <div class="actions">
+        <a class="btn" href="#demarrer">Démarrer sur Windows</a>
+        <a class="btn btn-secondary" href="https://github.com/CEOMELYXJA/RawHostileSelect">Voir le code sur GitHub</a>
+      </div>
     </header>
 
+    <section>
+      <h2>Une arène pour explorer l'évolution</h2>
+      <p>Règle ta population et ton environnement, puis suis les générations dans une application en français ou en anglais. Les personnages représentent les mécanismes du réseau; les animations montrent un échantillon de transmissions réellement enregistrées par le moteur.</p>
+      <div class="grid">
+        <div class="card"><h3>Observer</h3><p>Démarre, mets en pause ou avance une génération à la fois. Les couleurs indiquent si le message est intact, altéré ou perdu.</p></div>
+        <div class="card"><h3>Comprendre</h3><p>Explore les mesures, le journal et l'arbre cliquable d'un protocole. Les exemples avant/après viennent des traces enregistrées.</p></div>
+        <div class="card"><h3>Conserver</h3><p>Exporte une expérience en JSON ou CSV et rouvre un replay JSON.</p></div>
+        <div class="card"><h3>Garder le contexte</h3><p>Les résultats décrivent une simulation, pas un réseau physique. Une livraison ne garantit pas que le contenu est intact.</p></div>
+      </div>
+    </section>
+    <section id="demarrer">
+      <h2>Démarrer sur Windows 10 ou 11</h2>
+      <p>L'arène est une application Python locale. Cette page présente le projet : elle n'exécute pas la simulation dans le navigateur.</p>
+      <ol>
+        <li>Sur <a href="https://github.com/CEOMELYXJA/RawHostileSelect">GitHub</a>, télécharge le code avec <strong>Code → Download ZIP</strong> et extrais le dossier.</li>
+        <li>Installe Python 3 avec Tcl/Tk et pip si nécessaire. Dans un terminal ouvert dans le dossier extrait, exécute :</li>
+      </ol>
+      <pre><code>py -3 -m pip install -r requirements.txt --target .deps</code></pre>
+      <ol start="3"><li>Double-clique sur <strong>Démarrer_RawHostileSelect.bat</strong>.</li></ol>
+      <p class="notice">Le code source GitHub ne comprend pas un paquet Windows autonome. Le <a href="https://github.com/CEOMELYXJA/RawHostileSelect/blob/main/README_V3.md">guide complet bilingue</a> détaille l'installation, les mesures et les limites du prototype.</p>
+    </section>
+    <details>
+      <summary>Découvrir la v2 et l'historique du projet</summary>
     <section>
       <div class="quote">
         On ne conçoit plus. On laisse évoluer.<br>
@@ -192,10 +227,7 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
       </ul>
     </section>
 
-    <section>
-      <h2>Application locale Evolution Arena</h2>
-      <p>Une application Python pour Windows accompagne le projet. Consulte le fichier <a href="https://github.com/CEOMELYXJA/RawHostileSelect/blob/main/README_V3.md">README_V3.md</a> pour les instructions et les limites de la version disponible. Cette page Web est informative : elle n’exécute pas le moteur Python.</p>
-    </section>
+    </details>
     <footer>
       RawHostileSelect — MIT License<br>
       <a href="https://github.com/CEOMELYXJA/RawHostileSelect">github.com/CEOMELYXJA/RawHostileSelect</a>
@@ -204,9 +236,36 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
     <div id="content-en" lang="en" hidden>
       <header>
         <h1>RawHostileSelect</h1>
-        <p class="tagline">Self-evolving protocols through natural selection<br>in an extremely hostile environment</p>
-        <span class="badge">v2.0 — Genetic Programming + Multi-objective + Niches</span>
+        <p class="tagline">Observe the evolution of communication protocols<br>in a simulated hostile network.</p>
+        <span class="badge">v3.0 — Evolution Arena · local Windows prototype</span>
+        <div class="actions">
+          <a class="btn" href="#get-started">Get started on Windows</a>
+          <a class="btn btn-secondary" href="https://github.com/CEOMELYXJA/RawHostileSelect">View the code on GitHub</a>
+        </div>
       </header>
+      <section>
+        <h2>An arena for exploring evolution</h2>
+        <p>Set your population and environment, then follow generations in a French or English application. The characters represent network mechanisms; animations show a sample of transmissions actually recorded by the engine.</p>
+        <div class="grid">
+          <div class="card"><h3>Observe</h3><p>Start, pause, or advance one generation at a time. Colors show whether a message is intact, corrupted, or lost.</p></div>
+          <div class="card"><h3>Understand</h3><p>Explore measurements, the log, and a protocol's clickable tree. Before-and-after examples come from recorded traces.</p></div>
+          <div class="card"><h3>Keep your work</h3><p>Export an experiment as JSON or CSV and reopen a JSON replay.</p></div>
+          <div class="card"><h3>Keep the context</h3><p>Results describe a simulation, not a physical network. Delivery does not guarantee intact content.</p></div>
+        </div>
+      </section>
+      <section id="get-started">
+        <h2>Get started on Windows 10 or 11</h2>
+        <p>The arena is a local Python application. This page introduces the project; it does not run the simulation in your browser.</p>
+        <ol>
+          <li>On <a href="https://github.com/CEOMELYXJA/RawHostileSelect">GitHub</a>, download the code with <strong>Code → Download ZIP</strong> and extract the folder.</li>
+          <li>Install Python 3 with Tcl/Tk and pip if needed. Open a terminal in the extracted folder and run:</li>
+        </ol>
+        <pre><code>py -3 -m pip install -r requirements.txt --target .deps</code></pre>
+        <ol start="3"><li>Double-click <strong>Démarrer_RawHostileSelect.bat</strong>.</li></ol>
+        <p class="notice">The GitHub source code does not include a self-contained Windows package. The <a href="https://github.com/CEOMELYXJA/RawHostileSelect/blob/main/README_V3.md">full bilingual guide</a> explains installation, measurements, and the prototype's limitations.</p>
+      </section>
+      <details>
+        <summary>Explore v2 and the project's history</summary>
       <section>
         <div class="quote">We no longer design. We let things evolve.<br>What survives no longer needs to resemble TCP, files, or pages.</div>
         <p>Populations of protocols (represented as <strong>operation trees</strong>) compete under bit noise, packet loss, variable latency, failures and adversarial attacks. Natural selection decides. The goal is to discover radically different abstractions.</p>
@@ -248,10 +307,7 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
           <li>□ Agents without an explicit concept of a “message”</li>
         </ul>
       </section>
-      <section>
-        <h2>Local Evolution Arena application</h2>
-        <p>A Windows Python application accompanies the project. See <a href="https://github.com/CEOMELYXJA/RawHostileSelect/blob/main/README_V3.md">README_V3.md</a> for instructions and the limitations of the available version. This web page is informational: it does not run the Python engine.</p>
-      </section>
+      </details>
       <footer>RawHostileSelect — MIT License<br><a href="https://github.com/CEOMELYXJA/RawHostileSelect">github.com/CEOMELYXJA/RawHostileSelect</a></footer>
     </div>
   </div>
@@ -262,7 +318,7 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
       document.getElementById('content-fr').hidden = language !== 'fr';
       document.getElementById('content-en').hidden = language !== 'en';
       languageButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.lang === language)));
-      document.title = language === 'fr' ? 'RawHostileSelect — Auto-évolution de protocoles' : 'RawHostileSelect — Self-evolving protocols';
+      document.title = 'RawHostileSelect — Evolution Arena';
     }
     languageButtons.forEach(button => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
   </script>

@@ -53,13 +53,26 @@ def tree_data(node):
             "children": [tree_data(child) for child in node.children]}
 
 
-def _encode(node, payload):
+def _stage(node, path, before, after, checksum_failed=None):
+    """A bounded preview of real stage bytes, with their full lengths."""
+    limit = 64
+    result = {"path": list(path), "op": node.op.name, "params": list(node.params),
+              "before_hex": before[:limit].hex(), "after_hex": after[:limit].hex(),
+              "before_bytes": len(before), "after_bytes": len(after),
+              "truncated": len(before) > limit or len(after) > limit}
+    if checksum_failed is not None:
+        result["checksum_failed"] = checksum_failed
+    return result
+
+
+def _encode(node, payload, trace=None):
     """Encode in postorder and remember input lengths for exact inversion."""
     steps = []
 
-    def visit(part, data):
-        for child in part.children:
-            data = visit(child, data)
+    def visit(part, data, path):
+        for i, child in enumerate(part.children):
+            data = visit(child, data, path + (i,))
+        original = data
         before = len(data)
         # Refuse oversized trees instead of consuming unbounded memory.
         if part.op == gp.Op.REPEAT:
@@ -69,38 +82,46 @@ def _encode(node, payload):
         result = gp.apply_op(part.op, data, part.params)
         if len(result) > 20000:
             raise ValueError("encoded message exceeds the model limit")
-        steps.append((part, before))
+        steps.append((part, before, path))
+        if trace is not None:
+            trace.append(_stage(part, path, original, result))
         return result
 
-    return visit(node, payload), steps
+    return visit(node, payload, ()), steps
 
 
-def _decode(data, steps):
+def _decode(data, steps, trace=None):
     """Undo recorded stages. Return decoded bytes and any failed checks.
 
     Repetition votes on individual bits; an even tie uses the first copy.
     Detection is not correction and checks can themselves be corrupted.
     """
     failed = False
-    for node, input_length in reversed(steps):
+    for node, input_length, path in reversed(steps):
+        before = data
+        stage_failed = None
         op, params = node.op, node.params
         if op in (gp.Op.ADD_PARITY, gp.Op.CHECKSUM):
+            stage_failed = False
             strength = int(params[0]) if params else 1
             cut = 1 if op == gp.Op.ADD_PARITY or strength == 1 else 4
             if len(data) < cut:
-                failed = True
+                failed = stage_failed = True
                 data = b""
             else:
                 body, given = data[:-cut], data[-cut:]
                 expected = (bytes([sum(body) % 256]) if cut == 1 else
                             hashlib.blake2b(body, digest_size=4).digest())
-                failed |= given != expected
+                stage_failed = given != expected
+                failed |= stage_failed
                 data = body
         elif op == gp.Op.REPEAT:
             n = max(1, min(5, int(params[0]) if params else 2))
             if len(data) != input_length * n:
                 failed = True
                 data = b""
+                if trace is not None:
+                    trace.append(_stage(node, path, before, data))
                 continue
             chunks = [data[i * input_length:(i + 1) * input_length] for i in range(n)]
             result = bytearray(input_length)
@@ -116,6 +137,8 @@ def _decode(data, steps):
             data = data[:input_length]
         else:
             data = gp.try_inverse(op, data, params, input_length)
+        if trace is not None:
+            trace.append(_stage(node, path, before, data, stage_failed))
     return data, bool(failed)
 
 
@@ -133,6 +156,7 @@ class ArenaEngine:
         self._next_id = 1
         self.history = []
         self._parents = {}
+        self.lineage = {}
         with _random_lock:
             previous = random.getstate()
             try:
@@ -141,6 +165,9 @@ class ArenaEngine:
                 for ind in self.population:
                     ind.id = self._id()
                     self._parents[ind.id] = []
+                    self.lineage[ind.id] = {"id": ind.id, "birth_generation": 0,
+                                            "parents": [], "tree": ind.tree.to_string(),
+                                            "tree_data": tree_data(ind.tree)}
                 self._random_state = random.getstate()
             finally:
                 random.setstate(previous)
@@ -157,9 +184,11 @@ class ArenaEngine:
                  "scenario": scenario, "outcome": "lost", "bit_flips": 0,
                  "latency": None, "adversarial": False, "checksum_failed": False,
                  "original_hex": payload.hex(), "encoded_hex": "", "received_hex": None,
-                 "decoded_hex": None, "sent_bytes": 0}
+                 "decoded_hex": None, "sent_bytes": 0, "encode_steps": [],
+                 "decode_steps": [], "bit_changes": [], "changed_bit_count": 0,
+                 "bit_changes_truncated": False}
         try:
-            encoded, steps = _encode(individual.tree, payload)
+            encoded, steps = _encode(individual.tree, payload, event["encode_steps"])
         except (ValueError, OverflowError, RecursionError):
             event["outcome"] = "encoding_error"
             return event
@@ -181,7 +210,22 @@ class ArenaEngine:
             mask = np.packbits(bits, axis=1, bitorder="little").reshape(-1)
             received = bytes(a ^ int(b) for a, b in zip(encoded, mask))
             event["bit_flips"] = int(bits.sum())
-        decoded, failed = _decode(received, steps)
+        for byte_index, (before, after) in enumerate(zip(encoded, received)):
+            changed = before ^ after
+            if not changed:
+                continue
+            for bit_index in range(8):
+                if changed & (1 << bit_index):
+                    event["changed_bit_count"] += 1
+                    if len(event["bit_changes"]) < 32:
+                        event["bit_changes"].append({
+                            "byte_index": byte_index, "bit_index": bit_index,
+                            "before_bit": (before >> bit_index) & 1,
+                            "after_bit": (after >> bit_index) & 1,
+                            "before_byte": format(before, "08b"),
+                            "after_byte": format(after, "08b")})
+        event["bit_changes_truncated"] = event["changed_bit_count"] > len(event["bit_changes"])
+        decoded, failed = _decode(received, steps, event["decode_steps"])
         event["received_hex"] = received.hex()
         event["decoded_hex"] = decoded.hex()
         event["checksum_failed"] = failed
@@ -257,6 +301,31 @@ class ArenaEngine:
                    "best_id": max(self.population, key=lambda x: x.fitness.scalar()).id,
                    "front0": len(fronts[0]),
                    "diversity": len({p.tree.to_string() for p in self.population}) / len(self.population)}
+        baseline = [event for event in events if event["scenario"] == "baseline"]
+        stress = [event for event in events if event["scenario"] == "stress"]
+        received = [event for event in baseline if event["latency"] is not None]
+        sent = [event for event in baseline if event["sent_bytes"] > 0]
+        total_bytes = sum(event["sent_bytes"] for event in baseline)
+        summary["metrics"] = {
+            "attempts": len(baseline), "sent_packets": len(sent), "received": len(received),
+            "intact": sum(event["outcome"] == "intact" for event in baseline),
+            "lost": sum(event["outcome"] == "lost" for event in baseline),
+            "failures": sum(event["outcome"] == "failure" for event in baseline),
+            "encoding_errors": sum(event["outcome"] == "encoding_error" for event in baseline),
+            "sent_bytes": total_bytes,
+            "bytes_per_payload_byte": total_bytes / (len(sent) * self.config.payload_size) if sent else None,
+            "mean_latency": sum(event["latency"] for event in received) / len(received) if received else None,
+            "checksum_failures": sum(event["checksum_failed"] for event in baseline),
+            "bit_flips": sum(event["bit_flips"] for event in baseline),
+            "changed_bits": sum(event["changed_bit_count"] for event in baseline),
+            "stress_attempts": len(stress),
+            "stress_intact": sum(event["outcome"] == "intact" for event in stress),
+        }
+        summary["metrics"]["delivery"] = len(received) / len(baseline)
+        summary["metrics"]["integrity"] = summary["metrics"]["intact"] / len(baseline)
+        summary["metrics"]["resilience"] = summary["metrics"]["stress_intact"] / len(stress)
+        summary["niches"] = {str(niche): sum(ind.niche_id == niche for ind in self.population)
+                             for niche in sorted({ind.niche_id for ind in self.population})}
         # Do not construct or claim a next generation after the final evaluation.
         if generation + 1 < self.config.generations:
             ranked = sorted(self.population, key=lambda x: (x.rank, -x.crowding, -x.fitness.scalar(), x.id))
@@ -278,7 +347,10 @@ class ArenaEngine:
             while len(next_pop) < self.config.population:
                 p1, p2 = tournament(), tournament()
                 crossed = random.random() < .65
+                parent_tree = p1.tree.to_string()
+                donor_tree = p2.tree.to_string()
                 tree = gp.crossover_trees(p1.tree, p2.tree) if crossed else p1.tree.copy()
+                crossover_tree = tree.to_string()
                 before_mutation = tree.to_string()
                 mutated = random.random() < self.config.mutation_rate
                 if mutated:
@@ -290,11 +362,18 @@ class ArenaEngine:
                 child = gp.Individual(tree=tree)
                 child.id = self._id()
                 self._parents[child.id] = [p1.id, p2.id] if crossed else [p1.id]
+                self.lineage[child.id] = {"id": child.id, "birth_generation": generation + 1,
+                                          "parents": list(self._parents[child.id]),
+                                          "tree": child.tree.to_string(),
+                                          "tree_data": tree_data(child.tree)}
                 if crossed:
                     events.append({"type": "crossover", "individual_id": child.id,
-                                   "parents": [p1.id, p2.id]})
+                                   "parents": [p1.id, p2.id], "before": parent_tree,
+                                   "donor": donor_tree, "after": crossover_tree,
+                                   "changed": crossover_tree != parent_tree})
                 if mutated and tree.to_string() != before_mutation:
                     events.append({"type": "mutation", "individual_id": child.id,
+                                   "parents": list(self._parents[child.id]),
                                    "before": before_mutation, "after": tree.to_string()})
                 next_pop.append(child)
             self.population = next_pop
@@ -304,4 +383,5 @@ class ArenaEngine:
         return snapshot
 
     def export(self):
-        return {"version": "3.0", "config": asdict(self.config), "generations": self.history}
+        return {"version": "3.0", "config": asdict(self.config),
+                "lineage": self.lineage, "generations": self.history}

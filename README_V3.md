@@ -32,7 +32,9 @@ La commande originale en mode texte demeure `py -3 hostile_protocol_evolution.py
 
 ### À propos des résultats
 
-L'application permet d'exécuter l'évolution par générations, de consulter les protocoles et leurs structures, de voir un échantillon de transmissions enregistrées, d'exporter les résultats en JSON ou CSV et de rouvrir un replay JSON. La simulation tourne en arrière-plan. L'arène emploie des métaphores visuelles : elle ne simule pas des personnages physiques. Les animations ne montrent qu'un échantillon des événements enregistrés.
+L'application permet d'exécuter l'évolution par générations, de voir un échantillon de transmissions, sélections, éliminations, mutations et croisements enregistrés, d'exporter les résultats en JSON ou CSV et de rouvrir un replay JSON. La simulation tourne en arrière-plan. L'arène emploie des métaphores visuelles : elle ne simule pas des personnages physiques. Les animations ne montrent qu'un échantillon des événements enregistrés.
+
+La fiche d'un protocole comprend un arbre cliquable, des explications en français ou en anglais, les parents et l'historique enregistrés. Choisis un essai puis clique sur une opération pour voir les traces d'octets avant et après, lorsque disponibles. Ces extraits se limitent à 64 octets et sont clairement identifiés comme tels. Les anciens replays sans trace affichent leur absence plutôt qu'un exemple inventé. Le tableau de bord présente notamment le front de Pareto, les niches, la complexité, la latence, les pertes et les octets envoyés.
 
 Les résultats décrivent le modèle informatique et ses hypothèses, pas des tests d'un réseau physique. Chaque protocole est évalué sur un petit nombre de messages; les valeurs peuvent donc beaucoup varier. Les mesures de la v3 utilisent d'autres définitions que celles de la v2 : **leurs scores ne sont pas directement comparables**.
 
@@ -45,7 +47,7 @@ Dans la v3 :
 
 La latence est exprimée en unités simulées. Dans ce modèle, l'opération `FRAGMENT` est neutre; une somme de contrôle peut manquer certaines erreurs. Une livraison ne garantit pas une reconstruction exacte.
 
-Cette première version n'inclut pas encore toutes les fonctions souhaitées : notamment le schéma interactif détaillé des opérations et l'animation des mutations et croisements restent à développer. Les résultats ne démontrent pas une performance sur un vrai réseau.
+Cette première version n'inclut pas encore toutes les fonctions souhaitées. Les animations sont des représentations pédagogiques d'un échantillon d'événements; elles ne démontrent pas une performance sur un vrai réseau.
 
 ## English
 
@@ -79,7 +81,9 @@ The original text-mode command remains `py -3 hostile_protocol_evolution.py --ge
 
 ### About the results
 
-The application can run evolution one generation at a time, inspect protocols and their structures, display a sample of recorded transmissions, export results as JSON or CSV, and reopen a JSON replay. The simulation runs in the background. The arena uses visual metaphors: it does not simulate physical characters. The animation shows only a sample of recorded events.
+The application can run evolution one generation at a time, display a sample of recorded transmissions, selections, eliminations, mutations and crossovers, export results as JSON or CSV, and reopen a JSON replay. The simulation runs in the background. The arena uses visual metaphors: it does not simulate physical characters. The animation shows only a sample of recorded events.
+
+A protocol's details include a clickable tree, explanations in French or English, and recorded parents and history. Choose a trial and click an operation to see before-and-after byte traces when available. These excerpts are limited to 64 bytes and clearly identified as such. Older replays without traces show that the information is unavailable instead of inventing an example. The dashboard includes the Pareto front, niches, complexity, latency, losses, and bytes sent.
 
 Results describe the computer model and its assumptions, not tests of a physical network. Each protocol is evaluated on a small number of messages, so values can vary considerably. Version 3 uses different definitions from version 2: **their scores are not directly comparable**.
 
@@ -92,4 +96,4 @@ In v3:
 
 Latency is expressed in simulated units. In this model, `FRAGMENT` is a neutral operation; a checksum can miss some errors. Delivery does not guarantee exact reconstruction.
 
-This first version does not yet include every requested feature: in particular, a detailed interactive operation diagram and animations of mutations and crossovers remain to be developed. Results do not demonstrate performance on a real network.
+This first version does not yet include every requested feature. Animations are educational representations of a sample of events; they do not demonstrate performance on a real network.
