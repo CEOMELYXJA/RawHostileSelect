@@ -50,6 +50,12 @@ TEXT = {
 }
 
 TEXT['fr'].update({
+    'simple_title': 'En bref — une simulation',
+    'simple_explain': 'On fait semblant d’envoyer des colis : les colis sont des messages. Ils peuvent se perdre, arriver abîmés ou arriver intacts.',
+    'simple_wait': 'Appuie sur DÉMARRER pour voir ce qui arrive aux colis.',
+    'simple_result': 'Pour l’idée {id} : sur {attempts} essais, {received} colis sont arrivés ({delivery:.0%}). Parmi eux, {intact} messages étaient intacts ({integrity:.0%} des essais) et {damaged} encore abîmés. {lost} colis se sont perdus ; {other} autres essais ont échoué.',
+    'simple_best': 'C’est la meilleure idée selon le score calculé. C’est une simulation, pas une preuve dans la vraie vie.',
+    'simple_missing': 'Ce replay ne contient pas tous les comptes nécessaires pour ce résumé.',
     'dashboard': 'Tableau de bord', 'tree_tab': 'Arbre interactif', 'details_tab': 'Résultats', 'family_tab': 'Filiation',
     'click_node': 'Clique sur une opération. Les enfants sont exécutés avant leur parent.',
     'no_trace': "Cet enregistrement ne contient pas le détail de cette opération ; aucun exemple n'est inventé.",
@@ -74,6 +80,12 @@ TEXT['fr'].update({
     'report_failure': "Une intégrité de 0 % signifie qu'aucun essai de ce protocole n'a reconstruit le message exactement ; elle ne signifie pas nécessairement qu'aucun paquet n'est arrivé.",
 })
 TEXT['en'].update({
+    'simple_title': 'In a nutshell — a simulation',
+    'simple_explain': 'We pretend to send packages: the packages are messages. They can get lost, arrive damaged or arrive intact.',
+    'simple_wait': 'Press START to see what happens to the packages.',
+    'simple_result': 'For idea {id}: out of {attempts} trials, {received} packages arrived ({delivery:.0%}). Of those, {intact} messages were intact ({integrity:.0%} of trials) and {damaged} were still damaged. {lost} packages were lost; {other} other trials failed.',
+    'simple_best': 'This is the best idea by calculated score. It is a simulation, not proof of real-world performance.',
+    'simple_missing': 'This replay does not contain all the counts needed for this summary.',
     'dashboard': 'Dashboard', 'tree_tab': 'Interactive tree', 'details_tab': 'Results', 'family_tab': 'Lineage',
     'click_node': 'Click an operation. Children are executed before their parent.',
     'no_trace': 'This recording contains no detail for this operation; no example is invented.',
@@ -159,6 +171,13 @@ class ArenaApp(tk.Tk):
         ttk.Combobox(header, textvariable=self.lang, values=("fr", "en"), state="readonly", width=4).pack(side="right")
         header.winfo_children()[-1].bind("<<ComboboxSelected>>", lambda _e: self._rebuild())
         ttk.Label(self, text=self.t("subtitle")).pack(anchor="w", padx=18)
+        summary = tk.Frame(self, bg='#243a45', padx=10, pady=5); summary.pack(fill='x', padx=14, pady=(6, 0))
+        self.simple_text = tk.StringVar()
+        tk.Label(summary, text=self.t('simple_title'), bg='#243a45', fg='#9ff4dc', font=('Segoe UI', 10, 'bold'), anchor='w').pack(fill='x')
+        simple_label = tk.Label(summary, textvariable=self.simple_text, bg='#243a45', fg='#f3fbf9', font=('Segoe UI', 9), justify='left', anchor='w')
+        simple_label.pack(fill='x')
+        summary.bind('<Configure>', lambda event: simple_label.configure(wraplength=max(250, event.width - 25)))
+        self.update_simple_summary()
         settings = ttk.LabelFrame(self, text=self.t("settings"), padding=8); settings.pack(fill="x", padx=14, pady=7)
         for key, var, width in (("population", self.population, 5), ("generations", self.generations, 5), ("seed", self.seed, 8)):
             ttk.Label(settings, text=self.t(key)).pack(side="left", padx=(4, 3))
@@ -295,7 +314,26 @@ class ArenaApp(tk.Tk):
     def put_text(self, widget, value):
         widget.config(state="normal"); widget.delete("1.0", "end"); widget.insert("end", value); widget.config(state="disabled")
 
+    def update_simple_summary(self):
+        lines = [self.t('simple_explain')]
+        if not self.current:
+            lines.append(self.t('simple_wait'))
+        else:
+            people = self.current.get('individuals', [])
+            scored = [p for p in people if isinstance(p.get('fitness', {}).get('scalar'), (int, float))]
+            best = max(scored, key=lambda p: p['fitness']['scalar']) if scored else None
+            metrics = best.get('stats', {}) if best else {}
+            required = ('attempts', 'received', 'intact', 'lost')
+            if all(isinstance(metrics.get(k), (int, float)) for k in required) and metrics['attempts'] > 0:
+                attempts, received, intact, lost = (metrics[k] for k in required)
+                lines.append(self.t('simple_result').format(id=best.get('id', '—'), attempts=attempts, received=received, intact=intact, damaged=received-intact, lost=lost, other=attempts-received-lost, delivery=received/attempts, integrity=intact/attempts))
+                lines.append(self.t('simple_best'))
+            else:
+                lines.append(self.t('simple_missing'))
+        self.simple_text.set('\n'.join(lines))
+
     def show_snapshot(self, snap, animate=True):
+        self.update_simple_summary()
         summary = snap.get("summary", {})
         people = snap.get("individuals", [])
         best = max(people, key=lambda p: p.get("fitness", {}).get("scalar", 0), default=None)
