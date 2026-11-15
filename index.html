@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RawHostileSelect — L'arène des colis</title>
-  <meta name="description" content="Une arène de colis pour comprendre comment des messages traversent un réseau simulé." />
+  <title>RawHostileSelect — Package Arena</title>
+  <meta name="description" content="A package arena for exploring how messages travel through a simulated network." />
   <style>
     :root {
       --bg: #fff8f7;
@@ -130,151 +130,13 @@
 </head>
 <body>
   <div class="container">
-    <nav class="language-switch" aria-label="Langue / Language">
-      <button type="button" data-lang="fr" aria-pressed="true">Français</button>
-      <button type="button" data-lang="en" aria-pressed="false">English</button>
-    </nav>
-    <div id="content-fr" lang="fr">
-    <header>
-      <h1>RawHostileSelect</h1>
-      <p class="tagline">Des petits colis, des messages et un chemin plein de surprises. 📦</p>
-      <span class="badge">v4.0 — L'arène des colis · application locale Windows</span>
-      <div class="actions">
-        <a class="btn" href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v4.0.1/RawHostileSelect-Windows.zip">Télécharger la v4 pour Windows</a>
-        <a class="btn" href="#demarrer">Démarrer sur Windows</a>
-        <a class="btn btn-secondary" href="https://github.com/CEOMELYXJA/RawHostileSelect">Voir le code sur GitHub</a>
-      </div>
-    </header>
-
-    <section>
-      <h2>Imagine un petit colis 📦</h2>
-      <div class="grid">
-        <div class="card"><h3>📦 Le colis</h3><p>C'est un message qu'on veut envoyer.</p></div>
-        <div class="card"><h3>🛤️ Le chemin</h3><p>C'est le réseau. Parfois, le chemin abîme ou perd le colis.</p></div>
-        <div class="card"><h3>🛡️ L'arène</h3><p>Elle essaie différentes façons de protéger le message pendant son voyage.</p></div>
-        <div class="card"><h3>🏁 À l'arrivée</h3><p>Le colis peut arriver intact, arriver abîmé ou se perdre en chemin.</p></div>
-      </div>
-      <p style="margin-top:1rem">Tout cela se passe dans une simulation sur l'ordinateur. Les colis et le chemin sont des images pour comprendre les messages et le réseau.</p>
-    </section>
-    <section>
-      <h2>Que voit-on dans les boîtes ?</h2>
-      <p>Une boîte contient un message. Choisis une phrase courte, une couleur, un petit code ou un mélange. Observe ce qui part et ce qui peut être lu à l'arrivée.</p>
-      <div class="grid">
-        <div class="card"><h3>💬 Une phrase</h3><p>Par exemple : « J'ai mangé une pomme. »</p></div>
-        <div class="card"><h3>🎨 Une couleur</h3><p>Un nom de couleur voyage sous forme de message.</p></div>
-        <div class="card"><h3>🔢 Un code</h3><p>Une petite suite de caractères prend place dans la boîte.</p></div>
-        <div class="card"><h3>📬 À l'arrivée</h3><p>Le contenu peut être intact, changé, illisible ou perdu. Seul le résultat du vrai essai est montré.</p></div>
-      </div>
-    </section>
-    <section>
-      <h2>Les réglages, en mots simples</h2>
-      <div class="grid">
-        <div class="card"><h3>📦 Population</h3><p>Le nombre de modèles de boîte (protocoles) essayés à chaque tour. Un modèle peut envoyer plusieurs messages.</p></div>
-        <div class="card"><h3>🌱 Générations</h3><p>Le nombre de tours. Les modèles retenus peuvent donner naissance à de nouveaux modèles au tour suivant.</p></div>
-        <div class="card"><h3>🎲 Graine</h3><p>Un numéro pour refaire les mêmes tirages au hasard. Garde le même numéro et les mêmes réglages pour refaire la même expérience.</p></div>
-        <div class="card"><h3>📊 Le graphique</h3><p>Il aide à suivre les résultats des essais au fil des tours. Un colis arrivé peut contenir un message abîmé.</p></div>
-      </div>
-      <p style="margin-top:1rem">Les petites boîtes et les descendants sont des images pour comprendre l'évolution : les boîtes ne sont pas réellement imbriquées dans le modèle.</p>
-    </section>
-    <section>
-      <h2>Une arène pour explorer l'évolution</h2>
-      <p>Règle ta population et ton environnement, puis suis les générations dans une application en français ou en anglais. Les personnages représentent les mécanismes du réseau; les animations montrent un échantillon de transmissions réellement enregistrées par le moteur.</p>
-      <div class="grid">
-        <div class="card"><h3>Observer</h3><p>Démarre, mets en pause ou avance une génération à la fois. Les couleurs indiquent si le message est intact, altéré ou perdu.</p></div>
-        <div class="card"><h3>Comprendre</h3><p>Explore les mesures, le journal et l'arbre cliquable d'un protocole. Les exemples avant/après viennent des traces enregistrées.</p></div>
-        <div class="card"><h3>Revoir les colis</h3><p>Ouvre l'historique pour revoir les messages après le test. Il reste disponible tant que le programme est ouvert et s'efface avec Recommencer. Tu peux aussi exporter un fichier JSON pour le garder.</p></div>
-        <div class="card"><h3>Garder le contexte</h3><p>Les résultats décrivent une simulation, pas un réseau physique. Une livraison ne garantit pas que le contenu est intact.</p></div>
-      </div>
-    </section>
-    <section id="demarrer">
-      <h2>Démarrer sur Windows 10 ou 11</h2>
-      <p>L'arène est une application Python locale. Cette page présente le projet : elle n'exécute pas la simulation dans le navigateur.</p>
-      <p class="notice"><strong>Paquet v4 pour Windows 10/11 64 bits :</strong> <a href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v4.0.1/RawHostileSelect-Windows.zip">télécharge le ZIP</a>, extrais-le complètement, ouvre le dossier <strong>RawHostileSelect</strong>, puis double-clique sur <strong>LANCER LE PROGRAMME.bat</strong>.</p>
-      <h3>Installation à partir du code source</h3>
-      <ol>
-        <li>Sur <a href="https://github.com/CEOMELYXJA/RawHostileSelect">GitHub</a>, télécharge le code avec <strong>Code → Download ZIP</strong> et extrais le dossier.</li>
-        <li>Installe Python 3 avec Tcl/Tk et pip si nécessaire. Dans un terminal ouvert dans le dossier extrait, exécute :</li>
-      </ol>
-      <pre><code>py -3 -m pip install -r requirements.txt --target .deps</code></pre>
-      <ol start="3"><li>Double-clique sur <strong>Démarrer_RawHostileSelect.bat</strong>.</li></ol>
-      <p class="notice">Le téléchargement du code source et le paquet Windows sont distincts. Le <a href="https://github.com/CEOMELYXJA/RawHostileSelect/blob/main/README_V3.md">guide complet bilingue</a> détaille l'installation, les mesures et les limites du prototype.</p>
-    </section>
-    <details>
-      <summary>Découvrir la v2 et l'historique du projet</summary>
-    <section>
-      <div class="quote">
-        On ne conçoit plus. On laisse évoluer.<br>
-        Ce qui survit n’a plus besoin de ressembler à TCP, aux fichiers ou aux pages.
-      </div>
-      <p>
-        Des populations de protocoles (représentés comme des <strong>arbres d’opérations</strong>) 
-        s’affrontent sous bruit de bits, pertes de paquets, latence variable, pannes et attaques adversariales.
-        La sélection naturelle décide. L’objectif est de faire émerger des abstractions radicalement différentes.
-      </p>
-    </section>
-
-    <section>
-      <h2>Ce que fait la v2</h2>
-      <div class="grid">
-        <div class="card">
-          <h3>Genetic Programming</h3>
-          <p>Les protocoles sont des arbres : SCRAMBLE, INTERLEAVE, REPEAT, CHECKSUM, REVERSE, XOR… Mutation et crossover de sous-arbres.</p>
-        </div>
-        <div class="card">
-          <h3>Multi-objectif + Niches</h3>
-          <p>Fitness vectorielle (delivery, integrity, efficiency, resilience). Tri Pareto + crowding + speciation.</p>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <h2>Lancer l’évolution (la vraie affaire)</h2>
-      <p>Le moteur est un script Python. Télécharge le code, puis :</p>
-      <pre><code>pip install numpy
-
-# Évolution standard
-python hostile_protocol_evolution.py --generations 20 --pop 36 --hostile medium
-
-# Environnement extrême
-python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme</code></pre>
-      <p style="margin-top:1rem">
-        <a class="btn" href="https://github.com/CEOMELYXJA/RawHostileSelect">Voir / cloner le dépôt GitHub</a>
-      </p>
-    </section>
-
-    <section>
-      <h2>Exemple d’arbre émergent</h2>
-      <pre><code>REPEAT(2.0)
-  SCRAMBLE(3142.0)
-    ADD_PARITY()
-      REVERSE()</code></pre>
-      <p>La structure exacte change à chaque run. C’est le point.</p>
-    </section>
-
-    <section>
-      <h2>Roadmap</h2>
-      <ul>
-        <li>✔ Genetic Programming (arbres d’opérations)</li>
-        <li>✔ Sélection multi-objectifs + niches</li>
-        <li>□ Architectures mémoire non-classiques</li>
-        <li>□ Co-évolution de l’adversaire</li>
-        <li>□ Agents sans concept explicite de « message »</li>
-      </ul>
-    </section>
-
-    </details>
-    <footer>
-      RawHostileSelect — MIT License<br>
-      <a href="https://github.com/CEOMELYXJA/RawHostileSelect">github.com/CEOMELYXJA/RawHostileSelect</a>
-    </footer>
-    </div>
-    <div id="content-en" lang="en" hidden>
+    <main id="content-en">
       <header>
         <h1>RawHostileSelect</h1>
         <p class="tagline">Little packages, messages, and a path full of surprises. 📦</p>
         <span class="badge">v4.0 — Package Arena · local Windows application</span>
         <div class="actions">
-          <a class="btn" href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v4.0.1/RawHostileSelect-Windows.zip">Download v4 for Windows</a>
+          <a class="btn" href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v4.0.2/RawHostileSelect-Windows.zip">Download v4 for Windows</a>
           <a class="btn" href="#get-started">Get started on Windows</a>
           <a class="btn btn-secondary" href="https://github.com/CEOMELYXJA/RawHostileSelect">View the code on GitHub</a>
         </div>
@@ -293,8 +155,8 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
         <h2>What's inside the boxes?</h2>
         <p>A box carries a message. Choose a short sentence, a color, a small code, or a mix. See what was sent and what can be read at the end.</p>
         <div class="grid">
-          <div class="card"><h3>💬 A sentence</h3><p>For example: “I ate an apple today.”</p></div>
-          <div class="card"><h3>🎨 A color</h3><p>A color name travels as a message.</p></div>
+          <div class="card"><h3>💬 A sentence</h3><p>For example: “I ate a red apple.”</p></div>
+          <div class="card"><h3>🎨 A color</h3><p>A color travels as a hexadecimal message such as #FF6B8B.</p></div>
           <div class="card"><h3>🔢 A code</h3><p>A short sequence of characters goes inside the box.</p></div>
           <div class="card"><h3>📬 At the end</h3><p>The contents can be intact, changed, unreadable, or lost. Only the actual trial result is shown.</p></div>
         </div>
@@ -311,7 +173,7 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
       </section>
       <section>
         <h2>An arena for exploring evolution</h2>
-        <p>Set your population and environment, then follow generations in a French or English application. The characters represent network mechanisms; animations show a sample of transmissions actually recorded by the engine.</p>
+        <p>Set your population and environment, then follow generations in the local Windows application. The characters represent network mechanisms; animations show a sample of transmissions actually recorded by the engine.</p>
         <div class="grid">
           <div class="card"><h3>Observe</h3><p>Start, pause, or advance one generation at a time. Colors show whether a message is intact, corrupted, or lost.</p></div>
           <div class="card"><h3>Understand</h3><p>Explore measurements, the log, and a protocol's clickable tree. Before-and-after examples come from recorded traces.</p></div>
@@ -322,15 +184,15 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
       <section id="get-started">
         <h2>Get started on Windows 10 or 11</h2>
         <p>The arena is a local Python application. This page introduces the project; it does not run the simulation in your browser.</p>
-        <p class="notice"><strong>v4 package for 64-bit Windows 10/11:</strong> <a href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v4.0.1/RawHostileSelect-Windows.zip">download the ZIP</a>, extract it completely, open the <strong>RawHostileSelect</strong> folder, then double-click <strong>LANCER LE PROGRAMME.bat</strong>.</p>
+        <p class="notice"><strong>v4 package for 64-bit Windows 10/11:</strong> <a href="https://github.com/CEOMELYXJA/RawHostileSelect/releases/download/v4.0.2/RawHostileSelect-Windows.zip">download the ZIP</a>, extract it completely, open the <strong>RawHostileSelect</strong> folder, then double-click <strong>START THE APP.bat</strong>.</p>
         <h3>Install from source code</h3>
         <ol>
           <li>On <a href="https://github.com/CEOMELYXJA/RawHostileSelect">GitHub</a>, download the code with <strong>Code → Download ZIP</strong> and extract the folder.</li>
           <li>Install Python 3 with Tcl/Tk and pip if needed. Open a terminal in the extracted folder and run:</li>
         </ol>
         <pre><code>py -3 -m pip install -r requirements.txt --target .deps</code></pre>
-        <ol start="3"><li>Double-click <strong>Démarrer_RawHostileSelect.bat</strong>.</li></ol>
-        <p class="notice">The source-code download and Windows package are separate. The <a href="https://github.com/CEOMELYXJA/RawHostileSelect/blob/main/README_V3.md">full bilingual guide</a> explains installation, measurements, and the prototype's limitations.</p>
+        <ol start="3"><li>Double-click <strong>START_RawHostileSelect.bat</strong>.</li></ol>
+        <p class="notice">The source-code download and Windows package are separate. The <a href="https://github.com/CEOMELYXJA/RawHostileSelect/blob/main/README_V3.md">full guide</a> explains installation, measurements, and the prototype's limitations.</p>
       </section>
       <details>
         <summary>Explore v2 and the project's history</summary>
@@ -377,18 +239,7 @@ python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme
       </section>
       </details>
       <footer>RawHostileSelect — MIT License<br><a href="https://github.com/CEOMELYXJA/RawHostileSelect">github.com/CEOMELYXJA/RawHostileSelect</a></footer>
-    </div>
+    </main>
   </div>
-  <script>
-    const languageButtons = document.querySelectorAll('[data-lang]');
-    function setLanguage(language) {
-      document.documentElement.lang = language;
-      document.getElementById('content-fr').hidden = language !== 'fr';
-      document.getElementById('content-en').hidden = language !== 'en';
-      languageButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.lang === language)));
-      document.title = language === 'fr' ? "RawHostileSelect — L'arène des colis" : 'RawHostileSelect — Package Arena';
-    }
-    languageButtons.forEach(button => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
-  </script>
 </body>
 </html>
