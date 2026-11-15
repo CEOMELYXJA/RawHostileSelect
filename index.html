@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RawHostileSelect — Auto-évolution de protocoles</title>
+  <meta name="description" content="Sélection naturelle de protocoles dans un environnement extrêmement hostile. Genetic Programming + multi-objectif." />
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --surface: #12151c;
+      --border: #1e2430;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #ff4d4d;
+      --accent2: #3fb950;
+      --code-bg: #0d1117;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "SF Mono", "Fira Code", "Consolas", ui-monospace, monospace;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .container { max-width: 860px; margin: 0 auto; padding: 3rem 1.5rem; }
+    header { margin-bottom: 3rem; border-bottom: 1px solid var(--border); padding-bottom: 2rem; }
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+    .tagline { color: var(--muted); margin-top: 0.6rem; font-size: 0.95rem; }
+    .badge {
+      display: inline-block;
+      background: #21262d;
+      color: var(--accent2);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      margin-top: 1rem;
+      border: 1px solid #30363d;
+    }
+    section { margin-bottom: 2.8rem; }
+    h2 {
+      font-size: 1.1rem;
+      color: var(--text);
+      margin-bottom: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-left: 3px solid var(--accent);
+      padding-left: 0.7rem;
+    }
+    p, li { color: var(--muted); font-size: 0.92rem; }
+    ul { padding-left: 1.3rem; margin-top: 0.5rem; }
+    li { margin-bottom: 0.35rem; }
+    .quote {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 1.1rem 1.3rem;
+      margin: 1.5rem 0;
+      font-style: italic;
+      color: var(--text);
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      margin: 1rem 0;
+    }
+    code { color: #79c0ff; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.1rem 1.2rem;
+    }
+    .card h3 { font-size: 0.9rem; color: var(--accent2); margin-bottom: 0.4rem; }
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff !important;
+      padding: 0.65rem 1.3rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-top: 0.8rem;
+      text-decoration: none !important;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    footer {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>RawHostileSelect</h1>
+      <p class="tagline">Auto-évolution de protocoles par sélection naturelle<br>dans un environnement extrêmement hostile</p>
+      <span class="badge">v2.0 — Genetic Programming + Multi-objectif + Niches</span>
+    </header>
+
+    <section>
+      <div class="quote">
+        On ne conçoit plus. On laisse évoluer.<br>
+        Ce qui survit n’a plus besoin de ressembler à TCP, aux fichiers ou aux pages.
+      </div>
+      <p>
+        Des populations de protocoles (représentés comme des <strong>arbres d’opérations</strong>) 
+        s’affrontent sous bruit de bits, pertes de paquets, latence variable, pannes et attaques adversariales.
+        La sélection naturelle décide. L’objectif est de faire émerger des abstractions radicalement différentes.
+      </p>
+    </section>
+
+    <section>
+      <h2>Ce que fait la v2</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Genetic Programming</h3>
+          <p>Les protocoles sont des arbres : SCRAMBLE, INTERLEAVE, REPEAT, CHECKSUM, REVERSE, XOR… Mutation et crossover de sous-arbres.</p>
+        </div>
+        <div class="card">
+          <h3>Multi-objectif + Niches</h3>
+          <p>Fitness vectorielle (delivery, integrity, efficiency, resilience). Tri Pareto + crowding + speciation.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Lancer l’évolution (la vraie affaire)</h2>
+      <p>Le moteur est un script Python. Télécharge le code, puis :</p>
+      <pre><code>pip install numpy
+
+# Évolution standard
+python hostile_protocol_evolution.py --generations 20 --pop 36 --hostile medium
+
+# Environnement extrême
+python hostile_protocol_evolution.py --generations 25 --pop 40 --hostile extreme</code></pre>
+      <p style="margin-top:1rem">
+        <a class="btn" href="https://github.com/CEOMELYXJA/RawHostileSelect">Voir / cloner le dépôt GitHub</a>
+      </p>
+    </section>
+
+    <section>
+      <h2>Exemple d’arbre émergent</h2>
+      <pre><code>REPEAT(2.0)
+  SCRAMBLE(3142.0)
+    ADD_PARITY()
+      REVERSE()</code></pre>
+      <p>La structure exacte change à chaque run. C’est le point.</p>
+    </section>
+
+    <section>
+      <h2>Roadmap</h2>
+      <ul>
+        <li>✔ Genetic Programming (arbres d’opérations)</li>
+        <li>✔ Sélection multi-objectifs + niches</li>
+        <li>□ Architectures mémoire non-classiques</li>
+        <li>□ Co-évolution de l’adversaire</li>
+        <li>□ Agents sans concept explicite de « message »</li>
+      </ul>
+    </section>
+
+    <footer>
+      RawHostileSelect — MIT License<br>
+      <a href="https://github.com/CEOMELYXJA/RawHostileSelect">github.com/CEOMELYXJA/RawHostileSelect</a>
+    </footer>
+  </div>
+</body>
+</html>
