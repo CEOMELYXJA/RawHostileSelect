@@ -20,6 +20,9 @@ class CompactDashboardTests(unittest.TestCase):
         self.ui.geometry('1380x900')
         self.ui._rebuild()
         self.ui.update()
+        self.can_check_layout = (self.ui.winfo_screenwidth() >= 1380 and
+                                 self.ui.winfo_screenheight() >= 900 and
+                                 self.ui.winfo_width() >= 1380 and self.ui.winfo_height() >= 900)
 
     def tearDown(self):
         if getattr(self, 'ui', None) is not None:
@@ -34,7 +37,7 @@ class CompactDashboardTests(unittest.TestCase):
     def test_protocols_messages_and_controls_fit_without_main_scroll(self):
         ui = self.ui
         self.assertFalse(hasattr(ui, 'left_scroll'))
-        for page in range(2):
+        for page in range((len(ui.current['individuals']) + 2) // 3):
             ui.protocol_page = page
             ui.render_protocol_page()
             for person in range(len(ui.visible_protocols)):
@@ -49,14 +52,15 @@ class CompactDashboardTests(unittest.TestCase):
                     self.assertIn(ui.message_preview(event, 'original'), ui.protocol_message.get())
                     self.assertIn(ui.message_preview(event, 'decoded'), ui.protocol_message.get())
                     ui.update_idletasks()
-                    for name in ('canvas', 'graph', 'listbox', 'protocol_recipe_label',
-                                 'protocol_message_label', 'protocol_next_button',
-                                 'bit_details_label', 'bit_next_button'):
-                        widget = getattr(ui, name)
-                        top = widget.winfo_rooty() - ui.winfo_rooty()
-                        self.assertTrue(widget.winfo_viewable(), (name, top))
-                        self.assertGreaterEqual(widget.winfo_height(), widget.winfo_reqheight(), name)
-                        self.assertLessEqual(top + widget.winfo_height(), ui.winfo_height(), name)
+                    if self.can_check_layout:
+                        for name in ('canvas', 'graph', 'listbox', 'protocol_recipe_label',
+                                     'protocol_message_label', 'protocol_next_button',
+                                     'bit_details_label', 'bit_next_button'):
+                            widget = getattr(ui, name)
+                            top = widget.winfo_rooty() - ui.winfo_rooty()
+                            self.assertTrue(widget.winfo_viewable(), (name, top))
+                            self.assertGreaterEqual(widget.winfo_height(), widget.winfo_reqheight(), name)
+                            self.assertLessEqual(top + widget.winfo_height(), ui.winfo_height(), name)
 
     def test_bits_show_actual_values_and_uncertainty(self):
         ui = self.ui
@@ -85,6 +89,8 @@ class CompactDashboardTests(unittest.TestCase):
 
     def test_english_layout_keeps_main_panels_visible(self):
         ui = self.ui
+        if not self.can_check_layout:
+            self.skipTest('A physical screen of at least 1380 × 900 is required for this layout check')
         ui.lang.set('en')
         ui._rebuild()
         ui.update()

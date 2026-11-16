@@ -21,10 +21,11 @@ jobs:
           python-version: '3.11'
       - name: Install project dependency locally
         run: python -m pip install --target .deps -r requirements.txt
-      - name: Run engine tests
+      - name: Run simulation and interface tests
         shell: pwsh
         run: |
           $env:PYTHONPATH = "$PWD\.deps"
+          python -c "import tkinter as t; w=t.Tk(); print('Test display:', w.winfo_screenwidth(), w.winfo_screenheight()); w.destroy()"
           python -m unittest discover -s tests -v
       - name: Build and validate portable ZIP
         run: python tools/build_windows_package.py
