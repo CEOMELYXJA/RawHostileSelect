@@ -19,6 +19,7 @@ The package includes Python, Tcl/Tk, and NumPy for compatible 64-bit Windows 10 
 - **Box designs / population:** the number of protocol candidates tested in each round. A design can send multiple messages.
 - **Rounds / generations:** repeated stages of selection and variation. Nested boxes are a metaphor for recorded lineage; the model does not simulate physical nested packages.
 - **Magic number / seed:** a number used to reproduce the same random draws with the same settings and program version.
+- **Main-screen dashboard:** select a design to page through its actual operations, messages and changed bits. The dashboard summarizes the current round. A changed bit belongs to the encoded packet, not necessarily to a letter; the specific bit is chosen randomly by the simulated disturbance.
 - **Package history:** review each recorded message at departure and arrival, by round. It remains available after a run while the app is open; Restart clears it. Export JSON and reopen it as a replay if you want to keep a run after closing the app.
 
 ## Run from source
