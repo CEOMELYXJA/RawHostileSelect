@@ -37,6 +37,10 @@ The original text-mode command remains `py -3 hostile_protocol_evolution.py --ge
 
 ### About the results
 
+On the main screen, select a P… design to see its recipe. Use the buttons to move through its operations, messages and changed bits without scrolling the entire page. The dashboard summarizes the current round. The displayed bits belong to the encoded packet; the program explains the recorded noise or corruption, while the choice of a particular bit is random. Large result sets remain accessible through pages and detailed views.
+
+The layout was verified at 1,380 × 900 pixels and larger; smaller screens may not have enough room for every panel.
+
 The **PACKAGE HISTORY** button opens a list of messages by round: choose a package to review its contents at departure and arrival. History remains available after the test while the app is open, and **RESTART** clears it. To keep it after closing the app, export JSON and reopen that file as a replay.
 
 The application can run evolution one generation at a time, display a sample of recorded transmissions, selections, eliminations, mutations and crossovers, export results as JSON or CSV, and reopen a JSON replay. The simulation runs in the background. The arena uses visual metaphors: it does not simulate physical characters. The animation shows only a sample of recorded events.
